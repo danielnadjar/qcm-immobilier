@@ -493,8 +493,8 @@
             }
 
             let html = '<table><thead><tr>';
-            html += '<th class="sortable" onclick="sortTable(\'timestamp\')">Date</th>';
-            html += '<th class="sortable" onclick="sortTable(\'firstName\')">Prénom</th>';
+            html += '<th class="sortable" onclick="sortTable(\'created_at\')">Date</th>';
+            html += '<th class="sortable" onclick="sortTable(\'prenom\')">Prénom</th>';
             html += '<th class="sortable" onclick="sortTable(\'email\')">Email</th>';
             html += '<th class="sortable" onclick="sortTable(\'score\')">Score</th>';
             html += '<th>Négociation</th>';
@@ -521,7 +521,7 @@
             });
 
             sortedData.forEach(row => {
-                const date = new Date(row.timestamp).toLocaleDateString('fr-FR', {
+                const date = new Date(row.created_at || row.timestamp).toLocaleDateString('fr-FR', {
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit',
@@ -531,12 +531,12 @@
 
                 html += '<tr>';
                 html += `<td>${date}</td>`;
-                html += `<td>${row.firstName || '-'}</td>`;
+                html += `<td>${row.prenom || row.firstName || '-'}</td>`;
                 html += `<td>${row.email || '-'}</td>`;
                 html += `<td class="score-cell">${row.score}/${row.total || 35}</td>`;
-                html += `<td class="category-score">${row.scoreNegociation}/${getMaxScore('Négociation prix')}</td>`;
-                html += `<td class="category-score">${row.scoreLoi}/${getMaxScore('Loi')}</td>`;
-                html += `<td class="category-score">${row.scorePsychologie}/${getMaxScore('Psychologie vendeur/acheteur')}</td>`;
+                html += `<td class="category-score">${row.score_negociation || 0}/${getMaxScore('Négociation prix')}</td>`;
+                html += `<td class="category-score">${row.score_loi || 0}/${getMaxScore('Loi')}</td>`;
+                html += `<td class="category-score">${row.score_psychologie || 0}/${getMaxScore('Psychologie vendeur/acheteur')}</td>`;
                 html += '</tr>';
             });
 
@@ -579,7 +579,7 @@
             let csv = 'Date,Prénom,Email,Score,Négociation,Loi,Psychologie\n';
 
             allData.forEach(row => {
-                const date = new Date(row.timestamp).toLocaleDateString('fr-FR', {
+                const date = new Date(row.created_at || row.timestamp).toLocaleDateString('fr-FR', {
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit',
@@ -587,7 +587,7 @@
                     minute: '2-digit'
                 });
 
-                csv += `"${date}","${row.firstName || ''}","${row.email || ''}",${row.score || 0},${row.scoreNegociation || 0}/${getMaxScore('Négociation prix')},${row.scoreLoi || 0}/${getMaxScore('Loi')},${row.scorePsychologie || 0}/${getMaxScore('Psychologie vendeur/acheteur')}\n`;
+                csv += `"${date}","${row.prenom || row.firstName || ''}","${row.email || ''}",${row.score || 0},${row.score_negociation || 0}/${getMaxScore('Négociation prix')},${row.score_loi || 0}/${getMaxScore('Loi')},${row.score_psychologie || 0}/${getMaxScore('Psychologie vendeur/acheteur')}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

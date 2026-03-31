@@ -207,14 +207,14 @@
             {
                 id: 6,
                 category: "Loi",
-                question: "Qu'est-ce que la loi ALUR impose aux professionnels de l'immobilier depuis 2014 concernant les annonces immobili\u00e8res ?",
+                question: "Qu'est-ce que la loi ALUR impose aux professionnels de l'immobilier depuis 2014 concernant les prix affich\u00e9s dans les annonces ?",
                 options: [
-                    "L'obligation d'afficher uniquement le DPE dans chaque annonce",
-                    "Un plafonnement des honoraires d'agence \u00e0 5% maximum du prix de vente",
-                    "L'interdiction de publier des annonces sans au moins 3 photos du bien",
-                    "L'obligation d'afficher clairement les honoraires et de pr\u00e9ciser s'ils sont \u00e0 la charge de l'acqu\u00e9reur ou du vendeur"
+                    "L'obligation d'afficher uniquement le prix net vendeur, sans mention des honoraires",
+                    "L'obligation d'afficher les honoraires TTC, leur pourcentage, et de pr\u00e9ciser clairement s'ils sont \u00e0 la charge de l'acqu\u00e9reur ou du vendeur",
+                    "L'interdiction d'afficher les commissions d'agence dans les annonces pour ne pas influencer l'acheteur",
+                    "L'obligation d'afficher un prix unique tout compris, sans d\u00e9tailler la part des honoraires"
                 ],
-                correctAnswer: 3
+                correctAnswer: 1
             },
             {
                 id: 7,
@@ -295,7 +295,7 @@
                 options: [
                     "Accepter son prix car il ne bougera plus",
                     "Augmenter significativement votre offre pour montrer votre motivation",
-                    "Attendre 48 \u00e0 72 heures sans donner de nouvelles pour cr\u00e9er un vide psychologique, puis revenir avec une offre ajust\u00e9e",
+                    "Attendre 48 \u00e0 72 heures sans donner de nouvelles pour cr\u00e9er un vide psychologique, puis revenir avec la m\u00eame offre l\u00e9g\u00e8rement am\u00e9lior\u00e9e",
                     "Passer au bien suivant imm\u00e9diatement"
                 ],
                 correctAnswer: 2
@@ -485,7 +485,7 @@
                 category: "N\u00e9gociation prix",
                 question: "L'agent vous dit : \"C'est un quartier en pleine gentrification, les prix vont exploser\". Comment r\u00e9agir ?",
                 options: [
-                    "V\u00e9rifier par vous-m\u00eame les donn\u00e9es objectives : \u00e9volution des prix sur 5 ans, projets d'urbanisme en mairie. Ne jamais baser un achat sur la pr\u00e9diction d'un agent",
+                    "V\u00e9rifier par vous-m\u00eame les donn\u00e9es objectives ou demander des preuves \u00e0 l'agent : \u00e9volution des prix sur 5 ans, projets d'urbanisme en mairie, ouverture de commerces. Ne jamais baser un achat sur la PR\u00c9DICTION d'un agent",
                     "C'est un bon signal d'investissement, il faut acheter vite",
                     "Demander \u00e0 l'agent des preuves \u00e9crites de sa pr\u00e9diction",
                     "Surench\u00e9rir pour profiter de la hausse future"
@@ -674,7 +674,7 @@
         }
 
         function submitResults(total, negociation, loi, psychologie) {
-            const payload = { firstName: userName, email: userEmail, score: total, scoreNegociation: negociation, scoreLoi: loi, scorePsychologie: psychologie, totalQuestions: TOTAL_QUESTIONS, timestamp: new Date().toISOString(), answers: userAnswers };
+            const payload = { prenom: userName, email: userEmail, score: total, score_negociation: negociation, score_loi: loi, score_psychologie: psychologie, total: TOTAL_QUESTIONS, answers: userAnswers };
             fetch('https://cbfypewsudbcuslhpkzx.supabase.co/functions/v1/qcm-api', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
             }).catch(err => console.log('Submit:', err));
