@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QCM Immobilier - Coach Daniel NADJAR</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #0a0a0a; color: #f0f0f0; line-height: 1.6; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 30px 0; border-bottom: 1px solid #16213e; margin-bottom: 40px; }
+        .logo { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: #fff; margin-bottom: 5px; }
+        .logo-icon { font-size: 24px; margin-right: 8px; }
+        .landing { text-align: center; padding: 60px 20px; }
+        .landing h1 { font-size: 42px; font-weight: 700; margin-bottom: 20px; color: #fff; line-height: 1.2; }
+        .landing .subtitle { font-size: 18px; color: #b0b0b0; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .stats { display: flex; justify-content: center; gap: 40px; margin-bottom: 60px; flex-wrap: wrap; }
+        .stat { text-align: center; }
+        .stat-number { font-size: 32px; font-weight: 700; color: #e94560; margin-bottom: 5px; }
+        .stat-label { font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .form-group { margin-bottom: 20px; max-width: 400px; margin-left: auto; margin-right: auto; }
+        input[type="text"], input[type="email"] { width: 100%; padding: 14px 16px; border: 1px solid #16213e; background-color: #151515; color: #fff; border-radius: 6px; font-size: 16px; transition: border-color 0.3s; }
+        input[type="text"]:focus, input[type="email"]:focus { outline: none; border-color: #e94560; box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1); }
+        input::placeholder { color: #666; }
+        .btn { padding: 14px 32px; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-primary { background-color: #e94560; color: #fff; width: 100%; }
+        .btn-primary:hover { background-color: #d63c52; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(233, 69, 96, 0.3); }
+        .btn-primary:active { transform: translateY(0); }
+        .quiz-container { display: none; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #16213e; }
+        .progress-info { font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+        .score-counter { font-size: 20px; font-weight: 700; color: #e94560; }
+        .progress-bar-container { width: 100%; height: 6px; background-color: #16213e; border-radius: 3px; overflow: hidden; margin-bottom: 40px; }
+        .progress-bar { height: 100%; background-color: #e94560; transition: width 0.3s ease; width: 0%; }
+        .question-container { margin-bottom: 30px; }
+        .question-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .question-number { font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+        .category-badge { display: inline-block; padding: 4px 12px; background-color: #16213e; color: #e94560; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .question-text { font-size: 20px; font-weight: 600; margin-bottom: 25px; color: #fff; line-height: 1.4; }
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        .option { padding: 16px; border: 2px solid #16213e; background-color: #151515; border-radius: 6px; cursor: pointer; transition: all 0.3s; color: #f0f0f0; font-size: 15px; line-height: 1.4; }
+        .option:hover { border-color: #e94560; background-color: #1a1a1a; }
+        .option.selected { border-color: #e94560; background-color: rgba(233, 69, 96, 0.15); }
+        .feedback { margin-top: 20px; padding: 15px; background-color: rgba(233, 69, 96, 0.1); border-left: 4px solid #e94560; border-radius: 4px; color: #e94560; font-weight: 600; font-size: 14px; display: none; }
+        .feedback.show { display: block; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .results-container { display: none; text-align: center; padding: 40px 0; }
+        .results-score { font-size: 56px; font-weight: 700; color: #e94560; margin-bottom: 10px; }
+        .results-label { font-size: 18px; color: #888; margin-bottom: 40px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .category-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .category-card { background-color: #151515; padding: 20px; border-radius: 8px; border: 1px solid #16213e; }
+        .category-name { font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .category-score { font-size: 32px; font-weight: 700; color: #e94560; }
+        .verdict { background-color: #16213e; padding: 30px; border-radius: 8px; margin-bottom: 40px; border-left: 4px solid #e94560; }
+        .verdict-text { font-size: 18px; line-height: 1.6; margin-bottom: 20px; }
+        .cta-section { background-color: #151515; padding: 30px; border-radius: 8px; margin-bottom: 40px; border: 1px solid #16213e; }
+        .cta-section h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #fff; }
+        .cta-items { display: flex; flex-direction: column; gap: 15px; align-items: flex-start; }
+        .cta-item { display: flex; align-items: flex-start; gap: 12px; }
+        .cta-icon { font-size: 20px; flex-shrink: 0; }
+        .cta-text { text-align: left; font-size: 15px; line-height: 1.4; color: #b0b0b0; }
+        .share-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .share-btn { padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; border: none; color: #fff; transition: all 0.3s; }
+        .share-linkedin { background-color: #0077b5; }
+        .share-twitter { background-color: #1da1f2; }
+        .share-copy { background-color: #16213e; border: 1px solid #e94560; color: #e94560; }
+        .share-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+        .error-text { color: #e94560; font-size: 13px; margin-top: 5px; }
+        .restart-btn { margin-top: 20px; background-color: transparent; border: 2px solid #e94560; color: #e94560; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.3s; }
+        .restart-btn:hover { background-color: #e94560; color: #fff; }
+        @media (max-width: 600px) { .landing h1 { font-size: 28px; } .stats { gap: 20px; } .question-text { font-size: 17px; } .results-score { font-size: 42px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo"><span class="logo-icon">&#127968;</span> lesite.io</div>
+        </header>
+
+        <!-- Landing Page -->
+        <div id="landing" class="landing">
+            <h1>Testez vos connaissances immobili&#232;res</h1>
+            <p class="subtitle">35 questions pi&#232;ges con&#231;ues par Coach Daniel NADJAR pour r&#233;v&#233;ler si vous &#234;tes un acqu&#233;reur averti ou une proie facile.</p>
+            <div class="stats">
+                <div class="stat"><div class="stat-number">35</div><div class="stat-label">Questions</div></div>
+                <div class="stat"><div class="stat-number">3</div><div class="stat-label">Cat&#233;gories</div></div>
+                <div class="stat"><div class="stat-number">3000+</div><div class="stat-label">Appels myst&#232;re</div></div>
+            </div>
+            <form id="startForm" onsubmit="startQuiz(event)">
+                <div class="form-group">
+                    <input type="text" id="firstName" placeholder="Votre pr&#233;nom">
+                    <div id="firstNameError" class="error-text"></div>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="email" placeholder="Votre email">
+                    <div id="emailError" class="error-text"></div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">COMMENCER LE TEST</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Quiz -->
+        <div id="quizContainer" class="quiz-container">
+            <div class="quiz-header">
+                <div class="progress-info">Question <span id="currentQuestion">1</span>/35</div>
+                <div class="score-counter">R&#233;ponses : <span id="scoreCounter">0</span>/35</div>
+            </div>
+            <div class="progress-bar-container"><div id="progressBar" class="progress-bar"></div></div>
+            <div class="question-container">
+                <div class="question-header">
+                    <span class="question-number">Question <span id="questionNumber">1</span></span>
+                    <span id="categoryBadge" class="category-badge"></span>
+                </div>
+                <div id="questionText" class="question-text"></div>
+                <div id="optionsContainer" class="options"></div>
+            </div>
+            <div id="feedback" class="feedback">R&#233;ponse enregistr&#233;e &#10003;</div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" class="results-container">
+            <div class="results-score"><span id="finalScore">0</span>/35</div>
+            <div class="results-label">Score final</div>
+            <div class="category-results">
+                <div class="category-card"><div class="category-name">N&#233;gociation prix</div><div class="category-score" id="scoreNegociation">0/0</div></div>
+                <div class="category-card"><div class="category-name">Loi</div><div class="category-score" id="scoreLoi">0/0</div></div>
+                <div class="category-card"><div class="category-name">Psychologie vendeur</div><div class="category-score" id="scorePsychologie">0/0</div></div>
+            </div>
+            <div class="verdict"><div id="verdictText" class="verdict-text"></div></div>
+            <div id="ctaSection" class="cta-section"></div>
+            <div class="share-buttons">
+                <button class="share-btn share-linkedin" onclick="shareLinkedIn()">Partager sur LinkedIn</button>
+                <button class="share-btn share-twitter" onclick="shareTwitter()">Partager sur X</button>
+                <button class="share-btn share-copy" onclick="copyLink()">Copier le lien</button>
+            </div>
+            <button class="restart-btn" onclick="restartQuiz()">Recommencer le test</button>
+        </div>
+    </div>
+
+    <script>
+        const TOTAL_QUESTIONS = 35;
+        const quizData = [
+            {
+                id: 1,
+                category: "Psychologie vendeur",
+                question: "Un agent immobilier vous dit : \"J'ai d\u00e9j\u00e0 3 visites demain sur ce bien\". Quelle est la bonne r\u00e9action de l'acqu\u00e9reur averti ?",
+                options: [
+                    "Se d\u00e9p\u00eacher de faire une offre au prix pour ne pas rater le bien",
+                    "Consid\u00e9rer que c'est probablement une technique de pression classique et demander des preuves concr\u00e8tes",
+                    "Surench\u00e9rir de 5% pour s\u00e9curiser l'achat",
+                    "Annuler la visite puisque c'est trop concurrentiel",
+                    "Faire la visite quand m\u00eame ! Plusieurs visites ne veut pas dire qu'ils vont acheter"
+                ],
+                correctAnswer: 4
+            },
+            {
+                id: 2,
+                category: "N\u00e9gociation prix",
+                question: "Le prix affich\u00e9 d'un bien est de 300 000\u20ac. L'agent vous dit que le vendeur est \"ferme sur son prix\". Que signifie r\u00e9ellement cette phrase dans 90% des cas ?",
+                options: [
+                    "Le vendeur n'acceptera aucune n\u00e9gociation, il faut offrir au prix",
+                    "Le vendeur a une marge de n\u00e9gociation mais l'agent teste votre r\u00e9action",
+                    "Le bien est d\u00e9j\u00e0 sous-\u00e9valu\u00e9, c'est une bonne affaire",
+                    "L'agent n'a pas le droit de n\u00e9gocier sans l'accord \u00e9crit du vendeur",
+                    "L'agent veut \u00e9viter la n\u00e9gociation de sa commission"
+                ],
+                correctAnswer: [1, 4]
+            },
+            {
+                id: 3,
+                category: "Loi",
+                question: "Vous signez un compromis de vente. Quel est le d\u00e9lai l\u00e9gal de r\u00e9tractation pour un acqu\u00e9reur particulier ?",
+                options: [
+                    "7 jours calendaires",
+                    "14 jours ouvr\u00e9s",
+                    "10 jours calendaires",
+                    "10 jours ouvr\u00e9s"
+                ],
+                correctAnswer: 2
+            },
+            {
+                id: 4,
+                category: "N\u00e9gociation prix",
+                question: "Un vendeur met son bien en vente \u00e0 250 000\u20ac. Apr\u00e8s 6 mois sans offre, il baisse \u00e0 230 000\u20ac. Quelle est la strat\u00e9gie optimale de l'acqu\u00e9reur ?",
+                options: [
+                    "Offrir 230 000\u20ac puisque c'est d\u00e9j\u00e0 une baisse",
+                    "Attendre encore 3 mois pour que le prix baisse davantage",
+                    "Offrir 225 000\u20ac, juste au milieu",
+                    "Offrir 200 000\u20ac car la baisse montre que le prix initial \u00e9tait trop haut et le vendeur est en position de faiblesse"
+                ],
+                correctAnswer: 3
+            },
+            {
+                id: 5,
+                category: "Psychologie vendeur",
+                question: "Lors d'une visite, l'agent vous dit \"ce bien est parfait pour vous, il correspond exactement \u00e0 vos crit\u00e8res\". Quel pi\u00e8ge se cache derri\u00e8re cette phrase ?",
+                options: [
+                    "L'agent essaie de cr\u00e9er un biais de confirmation pour acc\u00e9l\u00e9rer votre d\u00e9cision \u00e9motionnelle",
+                    "Aucun pi\u00e8ge, l'agent fait bien son travail de conseil",
+                    "L'agent veut vous vendre le bien le plus cher de son stock",
+                    "L'agent n'a pas d'autres biens \u00e0 proposer"
+                ],
+                correctAnswer: 0
+            },
+            {
+                id: 6,
+                category: "Loi",
+                question: "Qu'est-ce que la loi ALUR impose aux professionnels de l'immobilier depuis 2014 concernant les annonces immobili\u00e8res ?",
+                options: [
+                    "L'obligation d'afficher uniquement le DPE dans chaque annonce",
+                    "Un plafonnement des honoraires d'agence \u00e0 5% maximum du prix de vente",
+                    "L'interdiction de publier des annonces sans au moins 3 photos du bien",
+                    "L'obligation d'afficher clairement les honoraires et de pr\u00e9ciser s'ils sont \u00e0 la charge de l'acqu\u00e9reur ou du vendeur"
+                ],
+                correctAnswer: 3
+            },
+            {
+                id: 7,
+                category: "N\u00e9gociation prix",
+                question: "Vous faites une offre \u00e0 280 000\u20ac sur un bien affich\u00e9 \u00e0 310 000\u20ac. L'agent vous rappelle : \"Le vendeur refuse mais accepterait \u00e0 300 000\u20ac\". Que devez-vous faire ?",
+                options: [
+                    "Accepter imm\u00e9diatement les 300 000\u20ac, c'est d\u00e9j\u00e0 10 000\u20ac de moins",
+                    "Abandonner car l'\u00e9cart est trop grand",
+                    "Monter directement \u00e0 295 000\u20ac pour montrer votre bonne foi",
+                    "Refuser et faire une contre-offre \u00e0 285 000\u20ac car le vendeur a montr\u00e9 qu'il \u00e9tait pr\u00eat \u00e0 n\u00e9gocier"
+                ],
+                correctAnswer: 3
+            },
+            {
+                id: 8,
+                category: "Loi",
+                question: "Le DPE d'un bien affiche la lettre F. Quelle cons\u00e9quence concr\u00e8te cela a-t-il pour l'acqu\u00e9reur depuis 2025 ?",
+                options: [
+                    "Aucune cons\u00e9quence, c'est juste informatif",
+                    "Le bien ne peut plus \u00eatre mis en location et des travaux de r\u00e9novation \u00e9nerg\u00e9tique devront \u00eatre envisag\u00e9s, ce qui est un argument de n\u00e9gociation majeur",
+                    "L'acqu\u00e9reur ne peut pas obtenir de pr\u00eat bancaire",
+                    "Le vendeur est oblig\u00e9 de faire les travaux avant la vente"
+                ],
+                correctAnswer: 1
+            },
+            {
+                id: 9,
+                category: "Psychologie vendeur",
+                question: "Un agent vous dit lors d'une visite : \"Je vais \u00eatre honn\u00eate avec vous\". Que doit penser l'acqu\u00e9reur averti ?",
+                options: [
+                    "C'est un bon signe, l'agent va vous dire la v\u00e9rit\u00e9 sur le bien",
+                    "L'agent est sur le point de vous r\u00e9v\u00e9ler un d\u00e9faut cach\u00e9",
+                    "C'est une technique de manipulation : cette phrase est utilis\u00e9e pour gagner votre confiance avant de vous orienter",
+                    "C'est un agent de confiance qui m\u00e9rite votre respect"
+                ],
+                correctAnswer: 2
+            },
+            {
+                id: 10,
+                category: "Psychologie vendeur",
+                question: "Vous visitez un appartement et le propri\u00e9taire est pr\u00e9sent pendant la visite. Pourquoi est-ce un avantage pour l'acqu\u00e9reur ?",
+                options: [
+                    "Ce n'est pas un avantage, le propri\u00e9taire va tout embellir",
+                    "Parce que vous pouvez observer ses r\u00e9actions \u00e9motionnelles et d\u00e9tecter ses motivations r\u00e9elles de vente",
+                    "Parce que vous pouvez n\u00e9gocier directement sans payer de commission",
+                    "Parce que le propri\u00e9taire conna\u00eet mieux le bien que l'agent"
+                ],
+                correctAnswer: 1
+            },
+            {
+                id: 11,
+                category: "Loi",
+                question: "Quel est le montant maximum des frais d'agence que peut l\u00e9galement facturer un agent immobilier ?",
+                options: [
+                    "Il n'y a pas de plafond l\u00e9gal, les honoraires sont libres mais doivent \u00eatre affich\u00e9s et respecter le bar\u00e8me annonc\u00e9",
+                    "5% du prix de vente maximum",
+                    "8% du prix de vente maximum",
+                    "Un bar\u00e8me fix\u00e9 par la pr\u00e9fecture"
+                ],
+                correctAnswer: 0
+            },
+            {
+                id: 12,
+                category: "Loi",
+                question: "Un bien est affich\u00e9 \"Honoraires charge acqu\u00e9reur\". Quelle est la cons\u00e9quence directe pour vous ?",
+                options: [
+                    "Vous payez les frais d'agence en plus du prix, et vos frais de notaire sont calcul\u00e9s sur le prix hors honoraires",
+                    "Vous payez les frais d'agence en plus du prix, et vos frais de notaire sont calcul\u00e9s sur le prix total incluant les honoraires",
+                    "Le vendeur paye les frais d'agence",
+                    "Les frais d'agence sont d\u00e9j\u00e0 inclus dans le prix affich\u00e9"
+                ],
+                correctAnswer: 0
+            },
+            {
+                id: 13,
+                category: "N\u00e9gociation prix",
+                question: "Le vendeur refuse cat\u00e9goriquement votre offre et vous dit : \"C'est mon dernier prix\". Quelle est la r\u00e9action strat\u00e9gique ?",
+                options: [
+                    "Accepter son prix car il ne bougera plus",
+                    "Augmenter significativement votre offre pour montrer votre motivation",
+                    "Attendre 48 \u00e0 72 heures sans donner de nouvelles pour cr\u00e9er un vide psychologique, puis revenir avec une offre ajust\u00e9e",
+                    "Passer au bien suivant imm\u00e9diatement"
+                ],
+                correctAnswer: 2
+            },
+            {
+                id: 14,
+                category: "Loi",
+                question: "Qu'est-ce qu'une clause suspensive dans un compromis de vente ?",
+                options: [
+                    "Une clause qui suspend d\u00e9finitivement la vente",
+                    "Une condition qui, si elle n'est pas r\u00e9alis\u00e9e, annule la vente sans p\u00e9nalit\u00e9 pour l'acqu\u00e9reur",
+                    "Une p\u00e9nalit\u00e9 financi\u00e8re en cas de d\u00e9sistement",
+                    "Un d\u00e9lai suppl\u00e9mentaire accord\u00e9 au vendeur pour quitter le bien"
+                ],
+                correctAnswer: 1
+            },
+            {
+                id: 15,
+                category: "Psychologie vendeur",
+                question: "Un agent vous propose de visiter un bien \"en exclusivit\u00e9\" avant sa mise en ligne. Quel est le vrai objectif ?",
+                options: [
+                    "Vous offrir un privil\u00e8ge rare et un acc\u00e8s prioritaire",
+                    "Respecter une obligation l\u00e9gale de pr\u00e9-commercialisation",
+                    "Tester le march\u00e9 avec votre r\u00e9action avant de fixer le prix",
+                    "Cr\u00e9er un sentiment d'urgence et de raret\u00e9 pour vous pousser \u00e0 faire une offre rapide sans comparer"
+                ],
+                correctAnswer: 3
+            },
+            {
+                id: 16,
+                category: "Loi",
+                question: "Vous achetez un bien 200 000\u20ac. Quel est le montant approximatif des frais de notaire dans l'ancien ?",
+                options: [
+                    "Environ 3% soit 6 000\u20ac",
+                    "Environ 7-8% soit 14 000 \u00e0 16 000\u20ac",
+                    "Environ 10% soit 20 000\u20ac",
+                    "Environ 5% soit 10 000\u20ac"
+                ],
+                correctAnswer: 1
+            },
+            {
+                id: 17,
+                category: "N\u00e9gociation prix",
+                question: "Un agent vous dit : \"Le vendeur a eu une offre \u00e0 290 000\u20ac hier mais il ne l'a pas accept\u00e9e\". Comment interpr\u00e9ter cette information ?",
+                options: [
+                    "C'est probablement une offre fant\u00f4me utilis\u00e9e pour ancrer un prix plancher dans votre esprit et vous emp\u00eacher de n\u00e9gocier en dessous",
+                    "Le bien vaut plus de 290 000\u20ac, il faut proposer davantage",
+                    "Le vendeur est trop gourmand, il faut passer au bien suivant",
+                    "L'agent est transparent et vous aide \u00e0 vous positionner"
+                ],
+                correctAnswer: 0
+            },
+            {
+                id: 18,
+                category: "N\u00e9gociation prix",
+                question: "Lors d'une visite, vous remarquez une fissure sur un mur porteur. L'agent vous dit \"c'est juste esth\u00e9tique\". Quel est le risque ?",
+                options: [
+                    "Aucun risque si l'agent le dit, il est professionnel",
+                    "Risque majeur : l'agent n'est pas expert en b\u00e2timent, une fissure sur mur porteur peut indiquer un probl\u00e8me structurel grave et son diagnostic n'a aucune valeur juridique",
+                    "Il faut demander au vendeur de repeindre avant la vente",
+                    "C'est couvert par l'assurance d\u00e9cennale"
+                ],
+                correctAnswer: 1
+            },
+            {
+                id: 19,
+                category: "Psychologie vendeur",
+                question: "Pourquoi la majorit\u00e9 des n\u00e9gociateurs immobiliers ne savent PAS n\u00e9gocier selon Coach Daniel ?",
+                options: [
+                    "Parce qu'ils n'ont pas le droit de n\u00e9gocier juridiquement",
+                    "Parce que les vendeurs refusent syst\u00e9matiquement",
+                    "Parce que leur formation est quasi inexistante sur ce sujet et qu'ils confondent \"n\u00e9gocier\" avec \"transmettre une offre\"",
+                    "Parce qu'ils sont pay\u00e9s uniquement par le vendeur"
+                ],
+                correctAnswer: 2
+            },
+            {
+                id: 20,
+                category: "Psychologie vendeur",
+                question: "Un bien est en vente depuis 12 mois. Le prix a \u00e9t\u00e9 baiss\u00e9 3 fois. Quel est le signal psychologique envoy\u00e9 par le vendeur ?",
+                options: [
+                    "Le vendeur est patient et attend le bon prix",
+                    "Le vendeur est en d\u00e9tresse psychologique, chaque baisse augmente votre pouvoir de n\u00e9gociation",
+                    "Le bien a un vice cach\u00e9 que personne ne veut",
+                    "L'agent est incomp\u00e9tent et a mal \u00e9valu\u00e9 le prix"
+                ],
+                correctAnswer: 1
+            },
+            {
+                id: 21,
+                category: "Loi",
+                question: "Quelle est la diff\u00e9rence fondamentale entre un mandat simple et un mandat exclusif pour l'acqu\u00e9reur ?",
+                options: [
+                    "Avec un mandat exclusif, l'acqu\u00e9reur paye plus de frais",
+                    "Il n'y a aucune diff\u00e9rence pour l'acqu\u00e9reur",
+                    "Le mandat exclusif interdit \u00e0 l'acqu\u00e9reur de n\u00e9gocier",
+                    "Avec un mandat simple, le bien est confi\u00e9 \u00e0 plusieurs agences ce qui cr\u00e9e de la confusion, tandis que l'exclusif garantit un seul interlocuteur plus impliqu\u00e9"
+                ],
+                correctAnswer: 3
+            },
+            {
+                id: 22,
+                category: "Psychologie vendeur",
+                question: "L'agent vous dit : \"\u00c0 ce prix-l\u00e0, il ne restera pas longtemps\". Quelle est la bonne analyse ?",
+                options: [
+                    "Si le bien \u00e9tait vraiment \u00e0 un prix imbattable, l'agent n'aurait pas besoin de vous convaincre avec cette technique d'urgence",
+                    "Il faut se d\u00e9p\u00eacher, le march\u00e9 est tendu",
+                    "L'agent a v\u00e9rifi\u00e9 les prix du march\u00e9 et vous fait une faveur",
+                    "Le bien est effectivement sous-\u00e9valu\u00e9"
+                ],
+                correctAnswer: 0
+            },
+            {
+                id: 23,
+                category: "Loi",
+                question: "Lors de la signature du compromis, le notaire vous demande un d\u00e9p\u00f4t de garantie de 10%. Pouvez-vous n\u00e9gocier ce montant ?",
+                options: [
+                    "Non, c'est un montant l\u00e9gal obligatoire de 10%",
+                    "Oui, le d\u00e9p\u00f4t de garantie est totalement n\u00e9gociable, aucun texte n'impose un montant minimum ou maximum",
+                    "Non, c'est fix\u00e9 par le notaire et non n\u00e9gociable",
+                    "Oui, mais uniquement si le vendeur est d'accord pour 0%"
+                ],
+                correctAnswer: 1
+            },
+            {
+                id: 24,
+                category: "N\u00e9gociation prix",
+                question: "Un vendeur vous dit \"je vends car je d\u00e9m\u00e9nage pour le travail\". Pourquoi cette information est-elle strat\u00e9giquement importante ?",
+                options: [
+                    "Ce n'est pas important, c'est une information personnelle",
+                    "Parce que le bien sera moins bien entretenu s'il est press\u00e9",
+                    "Parce qu'une mutation professionnelle implique un d\u00e9lai contraint, ce qui donne \u00e0 l'acqu\u00e9reur un levier de n\u00e9gociation sur le prix en \u00e9change d'une signature rapide",
+                    "Parce que cela signifie que le quartier perd des habitants"
+                ],
+                correctAnswer: 2
+            },
+            {
+                id: 25,
+                category: "N\u00e9gociation prix",
+                question: "Vous achetez un bien avec des travaux \u00e0 faire. L'agent vous dit : \"Avec 20 000\u20ac de travaux, ce sera parfait\". Quelle est la r\u00e8gle d'or ?",
+                options: [
+                    "Faire confiance \u00e0 l'estimation de l'agent qui conna\u00eet le march\u00e9",
+                    "Demander au vendeur de faire les travaux avant la vente",
+                    "D\u00e9duire les 20 000\u20ac du prix de vente propos\u00e9",
+                    "Multiplier syst\u00e9matiquement par 1.5 \u00e0 2 l'estimation de l'agent et faire chiffrer par un professionnel ind\u00e9pendant avant toute offre"
+                ],
+                correctAnswer: 3
+            },
+            {
+                id: 26,
+                category: "Loi",
+                question: "Dans une copropri\u00e9t\u00e9, qui paye les charges de copropri\u00e9t\u00e9 impay\u00e9es par le vendeur ?",
+                options: [
+                    "L'acqu\u00e9reur h\u00e9rite automatiquement de toutes les dettes du vendeur",
+                    "Le vendeur reste responsable de ses charges impay\u00e9es. Le notaire proc\u00e8de \u00e0 un appel de fonds au syndic avant la vente",
+                    "La copropri\u00e9t\u00e9 absorbe les impay\u00e9s",
+                    "L'agent immobilier est responsable des charges impay\u00e9es"
+                ],
+                correctAnswer: 1
+            },
+            {
+                id: 27,
+                category: "Psychologie vendeur",
+                question: "Un agent vous appelle et parle de lui et de son agence pendant 10 minutes avant de vous \u00e9couter. Que r\u00e9v\u00e8le ce comportement ?",
+                options: [
+                    "C'est un agent mal form\u00e9 qui ne ma\u00eetrise pas l'\u00e9coute active. Les meilleurs agents posent des questions d'abord",
+                    "C'est un professionnel passionn\u00e9 qui veut vous rassurer",
+                    "C'est la proc\u00e9dure standard de pr\u00e9sentation commerciale",
+                    "C'est un signe de comp\u00e9tence et d'exp\u00e9rience"
+                ],
+                correctAnswer: 0
+            },
+            {
+                id: 28,
+                category: "Loi",
+                question: "Le vendeur accepte votre offre oralement lors de la visite. Cette acceptation est-elle juridiquement contraignante ?",
+                options: [
+                    "Oui, un accord oral est un contrat en droit fran\u00e7ais",
+                    "Oui, si l'agent est t\u00e9moin de l'accord oral",
+                    "Non, mais l'agent peut vous forcer \u00e0 honorer l'accord",
+                    "Non, en immobilier, rien n'est engageant tant qu'un compromis ou une promesse de vente n'est pas sign\u00e9"
+                ],
+                correctAnswer: 3
+            },
+            {
+                id: 29,
+                category: "N\u00e9gociation prix",
+                question: "L'agent vous dit : \"C'est un quartier en pleine gentrification, les prix vont exploser\". Comment r\u00e9agir ?",
+                options: [
+                    "V\u00e9rifier par vous-m\u00eame les donn\u00e9es objectives : \u00e9volution des prix sur 5 ans, projets d'urbanisme en mairie. Ne jamais baser un achat sur la pr\u00e9diction d'un agent",
+                    "C'est un bon signal d'investissement, il faut acheter vite",
+                    "Demander \u00e0 l'agent des preuves \u00e9crites de sa pr\u00e9diction",
+                    "Surench\u00e9rir pour profiter de la hausse future"
+                ],
+                correctAnswer: 0
+            },
+            {
+                id: 30,
+                category: "N\u00e9gociation prix",
+                question: "Entre un bien \u00e0 250 000\u20ac et un bien \u00e0 350 000\u20ac, lequel est le moins cher ?",
+                options: [
+                    "Le bien \u00e0 250 000\u20ac, c'est \u00e9vident puisque le prix est plus bas",
+                    "Le bien \u00e0 350 000\u20ac car il est probablement plus grand et mieux plac\u00e9",
+                    "Impossible \u00e0 dire sans conna\u00eetre la surface et calculer le prix au m\u00b2",
+                    "Celui qui a le moins de travaux \u00e0 pr\u00e9voir"
+                ],
+                correctAnswer: 2
+            },
+            {
+                id: 31,
+                category: "N\u00e9gociation prix",
+                question: "La rentabilit\u00e9 d'un investissement immobilier, \u00e7a veut dire quoi concr\u00e8tement ?",
+                options: [
+                    "C'est le pourcentage de plus-value \u00e0 la revente dans 10 ans",
+                    "C'est le prix de vente moins le prix d'achat divis\u00e9 par le nombre d'ann\u00e9es",
+                    "C'est combien vous gagnez chaque mois et en combien de temps vous remboursez votre investissement",
+                    "C'est le taux de votre cr\u00e9dit immobilier compar\u00e9 au taux du march\u00e9"
+                ],
+                correctAnswer: 2
+            },
+            {
+                id: 32,
+                category: "N\u00e9gociation prix",
+                question: "Deux biens sont affich\u00e9s au m\u00eame prix de 450 000\u20ac. Comment savoir lequel est le moins cher ?",
+                options: [
+                    "En comparant le nombre de pi\u00e8ces et la luminosit\u00e9",
+                    "En demandant \u00e0 l'agent lequel est la meilleure affaire",
+                    "En regardant lequel a le plus beau quartier et les meilleures prestations",
+                    "En comparant le prix au m\u00b2 de chaque bien"
+                ],
+                correctAnswer: 3
+            },
+            {
+                id: 33,
+                category: "N\u00e9gociation prix",
+                question: "Quelle est la meilleure strat\u00e9gie pour le montant de votre premi\u00e8re offre ?",
+                options: [
+                    "Proposer 5% en dessous du prix affich\u00e9, c'est la norme du march\u00e9",
+                    "Proposer le prix demand\u00e9 pour \u00eatre s\u00fbr d'avoir le bien avant les autres",
+                    "Proposer un prix l\u00e9g\u00e8rement au-dessus pour s\u00e9curiser la transaction",
+                    "Faire une offre significativement plus basse que pr\u00e9vu pour tester la r\u00e9action du vendeur et garder une marge de n\u00e9gociation"
+                ],
+                correctAnswer: 3
+            },
+            {
+                id: 34,
+                category: "Psychologie vendeur",
+                question: "Vous avez un ami agent immobilier avec qui vous avez un excellent contact et plein de points communs. Pouvez-vous lui faire confiance pour d\u00e9fendre vos int\u00e9r\u00eats ?",
+                options: [
+                    "Oui, un ami ne cherchera jamais \u00e0 vous d\u00e9savantager",
+                    "Oui, \u00e0 condition de n\u00e9gocier une r\u00e9duction de ses honoraires en \u00e9change",
+                    "Non, car m\u00eame un ami doit gagner sa commission et son int\u00e9r\u00eat financier reste prioritaire dans une transaction",
+                    "Oui, si vous signez un mandat de recherche exclusif avec lui"
+                ],
+                correctAnswer: 2
+            },
+            {
+                id: 35,
+                category: "N\u00e9gociation prix",
+                question: "L'agent vous dit : \"C'est le prix du march\u00e9\". Quelle est la bonne r\u00e9ponse ?",
+                options: [
+                    "S'il le dit, c'est que c'est vrai, les agents connaissent parfaitement le march\u00e9 local",
+                    "V\u00e9rifier sur les sites d'estimation en ligne pour confirmer son analyse",
+                    "Demander une attestation de valeur sign\u00e9e par un notaire",
+                    "Le prix du march\u00e9 n'existe pas r\u00e9ellement : c'est VOUS l'acheteur qui fixez le prix que vous \u00eates pr\u00eat \u00e0 payer"
+                ],
+                correctAnswer: 3
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let userName = '';
+        let userEmail = '';
+
+        function startQuiz(e) {
+            e.preventDefault();
+            userName = document.getElementById('firstName').value.trim();
+            userEmail = document.getElementById('email').value.trim();
+            if (!userName || !userEmail) {
+                if (!userName) document.getElementById('firstNameError').textContent = 'Le pr\u00e9nom est requis';
+                if (!userEmail) document.getElementById('emailError').textContent = "L'email est requis";
+                return;
+            }
+            document.getElementById('landing').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            currentQuestionIndex = 0;
+            userAnswers = new Array(TOTAL_QUESTIONS).fill(null);
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = quizData[currentQuestionIndex];
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('questionNumber').textContent = currentQuestionIndex + 1;
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('categoryBadge').textContent = question.category;
+            const progressPercent = ((currentQuestionIndex + 1) / TOTAL_QUESTIONS) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                if (userAnswers[currentQuestionIndex] === index) optionDiv.classList.add('selected');
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+            document.getElementById('feedback').classList.remove('show');
+        }
+
+        function selectAnswer(optionIndex) {
+            userAnswers[currentQuestionIndex] = optionIndex;
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, idx) => { opt.classList.toggle('selected', idx === optionIndex); });
+            document.getElementById('feedback').classList.add('show');
+            const answeredCount = userAnswers.filter(a => a !== null).length;
+            document.getElementById('scoreCounter').textContent = answeredCount;
+            setTimeout(() => {
+                if (currentQuestionIndex < TOTAL_QUESTIONS - 1) { currentQuestionIndex++; loadQuestion(); }
+                else { showResults(); }
+            }, 1000);
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            let totalScore = 0;
+            let negociationScore = 0, loiScore = 0, psychologieScore = 0;
+            let negociationTotal = 0, loiTotal = 0, psychologieTotal = 0;
+
+            userAnswers.forEach((answer, index) => {
+                const question = quizData[index];
+                let isCorrect = false;
+                if (Array.isArray(question.correctAnswer)) {
+                    isCorrect = question.correctAnswer.includes(answer);
+                } else {
+                    isCorrect = (answer === question.correctAnswer);
+                }
+                if (isCorrect) {
+                    totalScore++;
+                    if (question.category === "N\u00e9gociation prix") negociationScore++;
+                    else if (question.category === "Loi") loiScore++;
+                    else if (question.category === "Psychologie vendeur") psychologieScore++;
+                }
+                if (question.category === "N\u00e9gociation prix") negociationTotal++;
+                else if (question.category === "Loi") loiTotal++;
+                else if (question.category === "Psychologie vendeur") psychologieTotal++;
+            });
+
+            document.getElementById('finalScore').textContent = totalScore;
+            document.getElementById('scoreNegociation').textContent = negociationScore + '/' + negociationTotal;
+            document.getElementById('scoreLoi').textContent = loiScore + '/' + loiTotal;
+            document.getElementById('scorePsychologie').textContent = psychologieScore + '/' + psychologieTotal;
+
+            let verdictText = '';
+            let ctaContent = '';
+            if (totalScore <= 12) {
+                verdictText = "Attention, vous risquez de vous faire avoir ! Mais pas de panique, Coach Daniel est l\u00e0 pour vous accompagner.";
+                ctaContent = '<h3>Prochaines \u00e9tapes</h3><div class="cta-items"><div class="cta-item"><div class="cta-icon">\ud83d\udcda</div><div class="cta-text">Procurez-vous mon livre sur Amazon</div></div><div class="cta-item"><div class="cta-icon">\ud83d\udcde</div><div class="cta-text">Prenez RDV pour un accompagnement personnalis\u00e9 \u2014 Je n\u00e9gocie pour vous, vous ne payez que si j\'\u00e9conomise plus de 5000\u20ac (honoraires : 10% par tranche de 5000\u20ac \u00e9conomis\u00e9s = 500\u20ac)</div></div></div>';
+            } else if (totalScore <= 23) {
+                verdictText = "Pas mal, mais il reste des pi\u00e8ges \u00e0 \u00e9viter ! Un accompagnement professionnel ferait la diff\u00e9rence.";
+                ctaContent = '<h3>Prochaines \u00e9tapes</h3><div class="cta-items"><div class="cta-item"><div class="cta-icon">\ud83d\udcda</div><div class="cta-text">Procurez-vous mon livre sur Amazon</div></div><div class="cta-item"><div class="cta-icon">\ud83d\udcde</div><div class="cta-text">Prenez RDV pour un accompagnement personnalis\u00e9 \u2014 Je n\u00e9gocie pour vous, vous ne payez que si j\'\u00e9conomise plus de 5000\u20ac (honoraires : 10% par tranche de 5000\u20ac \u00e9conomis\u00e9s = 500\u20ac)</div></div></div>';
+            } else if (totalScore <= 29) {
+                verdictText = "Bon niveau ! Vous avez de bonnes bases.";
+                ctaContent = '<h3>Rejoignez notre r\u00e9seau</h3><div class="cta-items"><div class="cta-item"><div class="cta-icon">\ud83c\udfc6</div><div class="cta-text">Vous avez le profil ! Rejoignez notre \u00e9quipe de n\u00e9gociateurs \u2014 contactez-nous</div></div></div>';
+            } else {
+                verdictText = "Impressionnant ! Vous devriez travailler dans l'immobilier... On recrute !";
+                ctaContent = '<h3>Rejoignez notre \u00e9quipe</h3><div class="cta-items"><div class="cta-item"><div class="cta-icon">\ud83c\udfc6</div><div class="cta-text">Vous avez le profil ! Rejoignez notre \u00e9quipe de n\u00e9gociateurs \u2014 contactez-nous</div></div></div>';
+            }
+            document.getElementById('verdictText').textContent = verdictText;
+            document.getElementById('ctaSection').innerHTML = ctaContent;
+            submitResults(totalScore, negociationScore, loiScore, psychologieScore);
+        }
+
+        function submitResults(total, negociation, loi, psychologie) {
+            const payload = { firstName: userName, email: userEmail, score: total, scoreNegociation: negociation, scoreLoi: loi, scorePsychologie: psychologie, totalQuestions: TOTAL_QUESTIONS, timestamp: new Date().toISOString(), answers: userAnswers };
+            fetch('https://cbfypewsudbcuslhpkzx.supabase.co/functions/v1/qcm-api', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+            }).catch(err => console.log('Submit:', err));
+        }
+
+        function restartQuiz() {
+            document.getElementById('landing').style.display = 'block';
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('startForm').reset();
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            document.getElementById('scoreCounter').textContent = '0';
+        }
+
+        function shareLinkedIn() {
+            const text = "Je viens de passer le QCM immobilier de Coach Daniel NADJAR ! J'ai obtenu " + document.getElementById('finalScore').textContent + "/35. Testez vous aussi vos connaissances : lesite.io";
+            window.open("https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(window.location.href), '_blank');
+        }
+        function shareTwitter() {
+            const text = "Je viens de passer le QCM immobilier de Coach Daniel NADJAR ! J'ai obtenu " + document.getElementById('finalScore').textContent + "/35. Testez vous aussi vos connaissances";
+            window.open("https://twitter.com/intent/tweet?text=" + encodeURIComponent(text) + "&url=" + encodeURIComponent(window.location.href), '_blank');
+        }
+        function copyLink() { navigator.clipboard.writeText(window.location.href).then(() => { alert('Lien copi\u00e9 !'); }); }
+    </script>
+</body>
+</html>
