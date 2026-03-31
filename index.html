@@ -254,7 +254,7 @@
             animation: fadeInDown 1s ease 0.3s both;
         }
         .avatar-ring {
-            width: 140px; height: 140px;
+            width: 160px; height: 160px;
             border-radius: 50%;
             margin: 0 auto;
             padding: 4px;
@@ -632,11 +632,27 @@
         .results-description {
             font-size: 15px;
             color: var(--text-muted);
-            max-width: 500px;
+            max-width: 700px;
             margin: 0 auto 40px;
             line-height: 1.6;
             animation: fadeInUp 0.8s ease 0.7s both;
+            text-align: left;
         }
+        .analysis-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: left;
+        }
+        .analysis-block p {
+            margin-bottom: 16px;
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text);
+        }
+        .analysis-block p:last-child { margin-bottom: 0; }
+        .analysis-block strong { color: var(--accent-light); }
 
         .category-results-grid {
             display: grid;
@@ -865,7 +881,6 @@
                     <div class="avatar-ring">
                         <img class="avatar-img" id="avatarImg" src="" alt="Coach Daniel NADJAR">
                     </div>
-                    <div class="avatar-badge">Coach Daniel</div>
                 </div>
                 <h1 class="hero-title">Es-tu un bon <span class="highlight">négociateur</span> ?</h1>
                 <p class="hero-subtitle">
@@ -1119,30 +1134,50 @@
                 document.getElementById('scoreRingFill').style.strokeDashoffset = circumference * (1 - pct);
             }, 300);
 
-            const amazonBtn = '<a href="https://www.amazon.fr/COMMENT-ACHETER-IMMOBILIER-FAIRE-ENFUMER/dp/B0GR9WV86J/ref=tmm_pap_swatch_0" target="_blank" class="amazon-btn">📖 Acheter mon livre sur Amazon</a>';
-            const phoneBtn = '<a href="#" class="phone-btn">📞 Prendre RDV avec Coach Daniel</a>';
-            let verdict = '', desc = '', cta = '';
+            const amazonBtn = '<a href="https://www.amazon.fr/COMMENT-ACHETER-IMMOBILIER-FAIRE-ENFUMER/dp/B0GR9WV86J/ref=tmm_pap_swatch_0" target="_blank" class="amazon-btn">Acheter mon livre sur Amazon</a>';
+            const phoneBtn = '<a href="#" class="phone-btn">Prendre RDV avec Coach Daniel</a>';
+            let verdict = '', analysis = '', cta = '';
+
+            const negPct = negT > 0 ? Math.round(neg/negT*100) : 0;
+            const loiPct = loiT > 0 ? Math.round(loi/loiT*100) : 0;
+            const psyPct = psyT > 0 ? Math.round(psy/psyT*100) : 0;
 
             if (total <= 12) {
-                verdict = "Attention, danger !";
-                desc = "Vous risquez de vous faire avoir. Mais pas de panique, Coach Daniel est là pour vous accompagner.";
-                cta = '<div class="cta-title">🚨 Prochaines étapes</div><div class="cta-items"><div class="cta-item"><div class="cta-icon">📚</div><div class="cta-text">Découvrez comment éviter les pièges immobiliers dans mon livre</div></div><div class="cta-item"><div class="cta-icon">📞</div><div class="cta-text">Prenez RDV pour un accompagnement personnalisé — Je négocie pour vous, vous ne payez que si j\'économise plus de 5000€ (honoraires : 10% par tranche de 5000€ économisés = 500€)</div></div></div><div style="text-align:center">' + amazonBtn + '<br>' + phoneBtn + '</div>';
+                verdict = "Profil : Acheteur vulnérable";
+                analysis = '<div class="analysis-block"><p>' + userName + ', votre score de <strong>' + total + '/35</strong> révèle un profil que je rencontre très souvent dans mon métier : celui de l\'acheteur sincère mais totalement désarmé face aux professionnels de l\'immobilier. Ce n\'est pas une critique — c\'est un constat, et surtout, c\'est rattrapable.</p>'
+                + '<p>En <strong>négociation (' + neg + '/' + negT + ')</strong>, vos réponses montrent que vous avez tendance à accepter les prix tels qu\'ils sont présentés. Vous faites probablement confiance aux estimations des agents sans les remettre en question. C\'est exactement ce que l\'industrie immobilière attend de vous. Un bien affiché à 300 000 € n\'en vaut pas forcément 300 000 €. Le prix affiché est un point de départ, JAMAIS un point d\'arrivée. Dans mes formations, j\'enseigne que la première offre doit toujours être significativement basse — pas pour insulter le vendeur, mais pour ouvrir un espace de négociation. Chaque euro que vous ne négociez pas est un euro que vous offrez à quelqu\'un d\'autre.</p>'
+                + '<p>En <strong>connaissance juridique (' + loi + '/' + loiT + ')</strong>, c\'est la zone la plus dangereuse pour vous. Ne pas connaître vos droits, c\'est comme jouer aux échecs sans connaître les règles. Le délai de rétractation, les clauses suspensives, le dépôt de garantie négociable, les frais de notaire calculés différemment selon la répartition des honoraires — tout cela, ce sont des leviers que les professionnels maîtrisent et que vous ignorez. Résultat : vous signez des documents sans comprendre réellement ce que vous engagez.</p>'
+                + '<p>En <strong>psychologie vendeur (' + psy + '/' + psyT + ')</strong>, vos réponses indiquent que vous prenez les paroles des agents au premier degré. Quand un agent vous dit « j\'ai 3 visites demain » ou « je vais être honnête avec vous », ce sont des techniques de manipulation classiques que j\'ai identifiées dans plus de 3 000 appels client mystère. L\'agent n\'est pas votre ami. Il est payé à la commission, et chaque jour qui passe sans vente lui coûte de l\'argent.</p>'
+                + '<p><strong>Mon diagnostic :</strong> Si vous achetez un bien dans votre état actuel de préparation, vous risquez de surpayer de 15 à 30% et de passer à côté de vices cachés ou de clauses défavorables. La bonne nouvelle ? Tout s\'apprend. Mon livre vous donnera les bases essentielles, et un accompagnement personnalisé peut vous faire économiser des dizaines de milliers d\'euros sur votre achat.</p></div>';
+                cta = '<div class="cta-title">Vos prochaines étapes</div><div class="cta-items"><div class="cta-item"><div class="cta-icon">1</div><div class="cta-text"><strong>Lisez mon livre</strong> — Il contient toutes les techniques que les agents ne veulent pas que vous connaissiez. C\'est la base indispensable avant tout achat.</div></div><div class="cta-item"><div class="cta-icon">2</div><div class="cta-text"><strong>Faites-vous accompagner</strong> — Je négocie pour vous. Vous ne payez que si j\'économise plus de 5 000 € sur votre achat. Mes honoraires : 10% par tranche de 5 000 € économisés, soit 500 €. Zéro risque pour vous.</div></div></div><div style="text-align:center">' + amazonBtn + '<br>' + phoneBtn + '</div>';
             } else if (total <= 23) {
-                verdict = "Pas mal, mais attention aux pièges !";
-                desc = "Il reste des zones d'ombre qui pourraient vous coûter cher. Un accompagnement ferait la différence.";
-                cta = '<div class="cta-title">📈 Progressez encore</div><div class="cta-items"><div class="cta-item"><div class="cta-icon">📚</div><div class="cta-text">Approfondissez vos connaissances avec mon livre</div></div><div class="cta-item"><div class="cta-icon">📞</div><div class="cta-text">Prenez RDV pour un accompagnement — Je négocie pour vous, vous ne payez que si j\'économise plus de 5000€</div></div></div><div style="text-align:center">' + amazonBtn + '<br>' + phoneBtn + '</div>';
+                verdict = "Profil : Acheteur averti mais incomplet";
+                analysis = '<div class="analysis-block"><p>' + userName + ', avec un score de <strong>' + total + '/35</strong>, vous n\'êtes clairement pas un débutant. Vous avez des intuitions justes et certaines connaissances solides. Mais c\'est précisément ce profil qui est le plus dangereux — parce que vous en savez assez pour vous sentir en confiance, mais pas assez pour détecter les pièges les plus subtils.</p>'
+                + '<p>Votre score en <strong>négociation (' + neg + '/' + negT + ', soit ' + negPct + '%)</strong> montre que vous comprenez les principes de base — ne jamais accepter le premier prix, identifier les vendeurs pressés. Mais il y a des nuances qui vous échappent encore. Par exemple, savez-vous réellement comment réagir quand un agent vous annonce une « offre fantôme » ? Savez-vous que quand le vendeur dit « c\'est mon dernier prix », c\'est souvent le moment où la vraie négociation commence ? La technique du silence de 48 à 72 heures est un outil redoutable que peu d\'acheteurs maîtrisent. Dans cette zone de prix, chaque tranche de 5 000 € compte — et vous en laissez probablement 10 000 à 20 000 € sur la table à chaque transaction.</p>'
+                + '<p>En <strong>droit immobilier (' + loi + '/' + loiT + ', soit ' + loiPct + '%)</strong>, vous avez des bases mais des lacunes qui peuvent coûter cher. La différence entre honoraires charge acquéreur et charge vendeur a un impact direct sur vos frais de notaire. Le dépôt de garantie est totalement négociable — aucun texte de loi n\'impose 10%. Les clauses suspensives sont votre bouclier juridique, et beaucoup d\'acheteurs ne négocient pas assez de conditions à leur avantage. Chacune de ces méconnaissances, prise isolément, semble anodine. Cumulées, elles représentent plusieurs milliers d\'euros.</p>'
+                + '<p>En <strong>psychologie (' + psy + '/' + psyT + ', soit ' + psyPct + '%)</strong>, vous détectez certaines manipulations mais pas toutes. Les techniques les plus grossières (urgence, rareté) ne vous trompent plus. Mais les plus fines — le biais de confirmation, l\'ancrage psychologique par une fausse offre, la fausse transparence (« je vais être honnête avec vous ») — passent encore sous votre radar. Un négociateur aguerri lit le vendeur comme un livre ouvert : sa posture, ses hésitations, ses motivations cachées.</p>'
+                + '<p><strong>Mon diagnostic :</strong> Vous êtes dans la zone où l\'accompagnement a le plus d\'impact. Vous avez le potentiel de négocier comme un pro, mais il vous manque les dernières clés. Mon livre vous les donnera, et un coaching ciblé sur vos points faibles transformera votre prochain achat.</p></div>';
+                cta = '<div class="cta-title">Passez au niveau supérieur</div><div class="cta-items"><div class="cta-item"><div class="cta-icon">1</div><div class="cta-text"><strong>Comblez vos lacunes</strong> — Mon livre détaille chaque technique de négociation et chaque piège juridique. Il est pensé exactement pour votre profil : quelqu\'un qui sait déjà se défendre mais qui veut devenir imbattable.</div></div><div class="cta-item"><div class="cta-icon">2</div><div class="cta-text"><strong>Accompagnement personnalisé</strong> — Je négocie pour vous. Vous ne payez que si j\'économise plus de 5 000 €. Avec votre niveau actuel + mon expertise, les résultats sont souvent spectaculaires.</div></div></div><div style="text-align:center">' + amazonBtn + '<br>' + phoneBtn + '</div>';
             } else if (total <= 29) {
-                verdict = "Bon niveau !";
-                desc = "Vous avez de solides bases. Perfectionnez-vous pour devenir imbattable.";
-                cta = '<div class="cta-title">🎯 Allez encore plus loin</div><div class="cta-items"><div class="cta-item"><div class="cta-icon">📚</div><div class="cta-text">Perfectionnez votre expertise avec mon livre</div></div><div class="cta-item"><div class="cta-icon">🏆</div><div class="cta-text">Vous avez le profil ! Rejoignez notre équipe de négociateurs — contactez-nous</div></div></div><div style="text-align:center">' + amazonBtn + '<br>' + phoneBtn + '</div>';
+                verdict = "Profil : Négociateur confirmé";
+                analysis = '<div class="analysis-block"><p>' + userName + ', votre score de <strong>' + total + '/35</strong> vous place dans le top 15% des personnes qui passent ce test. Vous avez une maîtrise solide des trois piliers de l\'achat immobilier : la négociation, le droit et la psychologie du vendeur. Ce n\'est pas un hasard — soit vous avez déjà vécu plusieurs transactions, soit vous vous êtes formé sérieusement.</p>'
+                + '<p>En <strong>négociation (' + neg + '/' + negT + ', soit ' + negPct + '%)</strong>, vous comprenez que le prix affiché n\'est qu\'un point de départ. Vous savez identifier un vendeur en difficulté, vous maîtrisez le concept de la contre-offre progressive, et vous ne vous laissez pas impressionner par les tactiques de pression. C\'est excellent. Les points que vous avez manqués relèvent probablement de techniques avancées — la gestion des offres fantômes, la stratégie du silence prolongé, ou les subtilités de la première offre « anormalement basse » qui permet de sonder la vraie marge du vendeur. Ces nuances peuvent représenter 5 000 à 15 000 € supplémentaires de pouvoir de négociation.</p>'
+                + '<p>En <strong>droit (' + loi + '/' + loiT + ', soit ' + loiPct + '%)</strong>, vous connaissez vos droits fondamentaux. Mais le droit immobilier regorge de subtilités que même les professionnels ignorent parfois. L\'optimisation fiscale des frais de notaire via la répartition des honoraires, les pièges des copropriétés avec charges impayées, les implications concrètes du DPE sur la valeur locative et la négociation — ce sont des armes que les meilleurs acheteurs utilisent systématiquement.</p>'
+                + '<p>Votre <strong>lecture psychologique (' + psy + '/' + psyT + ', soit ' + psyPct + '%)</strong> est votre force. Vous ne tombez plus dans les pièges classiques. Vous savez que l\'agent travaille pour sa commission, que ses paroles sont des outils de vente, et que la présence du propriétaire est une mine d\'informations. La question maintenant est : savez-vous EXPLOITER ces informations dans une stratégie de négociation globale ? C\'est la différence entre un bon acheteur et un excellent négociateur.</p>'
+                + '<p><strong>Mon diagnostic :</strong> Vous avez le profil idéal pour aller encore plus loin. Vos fondamentaux sont solides, et avec les dernières techniques de négociation avancée, vous pouvez devenir un acheteur que les agents redoutent — dans le bon sens du terme. Vous avez aussi le profil pour rejoindre une équipe de négociateurs professionnels.</p></div>';
+                cta = '<div class="cta-title">Devenez imbattable</div><div class="cta-items"><div class="cta-item"><div class="cta-icon">1</div><div class="cta-text"><strong>Perfectionnez-vous</strong> — Mon livre contient les techniques avancées qui feront de vous un négociateur que les agents redoutent. Avec votre niveau, vous en tirerez le maximum.</div></div><div class="cta-item"><div class="cta-icon">2</div><div class="cta-text"><strong>Rejoignez notre équipe</strong> — Avec votre profil, vous avez les qualités pour devenir négociateur immobilier professionnel. Contactez-nous pour en discuter.</div></div></div><div style="text-align:center">' + amazonBtn + '<br>' + phoneBtn + '</div>';
             } else {
-                verdict = "Impressionnant !";
-                desc = "Vous maîtrisez le sujet. Vous devriez travailler dans l'immobilier... On recrute !";
-                cta = '<div class="cta-title">🏆 Rejoignez l\'équipe</div><div class="cta-items"><div class="cta-item"><div class="cta-icon">📚</div><div class="cta-text">Mon livre, la référence pour les pros</div></div><div class="cta-item"><div class="cta-icon">🏆</div><div class="cta-text">Vous avez le profil ! Rejoignez notre équipe de négociateurs</div></div></div><div style="text-align:center">' + amazonBtn + '<br>' + phoneBtn + '</div>';
+                verdict = "Profil : Expert en négociation";
+                analysis = '<div class="analysis-block"><p>' + userName + ', avec <strong>' + total + '/35</strong>, vous faites partie de l\'élite — moins de 3% des participants atteignent ce score. Votre maîtrise de la négociation immobilière est exceptionnelle, et je pèse mes mots.</p>'
+                + '<p>En <strong>négociation (' + neg + '/' + negT + ', soit ' + negPct + '%)</strong>, vous avez démontré une compréhension profonde des mécanismes de prix. Vous savez que le marché n\'est pas une entité abstraite qui fixe les prix — c\'est VOUS, l\'acheteur, qui décidez ce que vous êtes prêt à payer. Vous maîtrisez l\'art de la première offre basse, la technique du silence, la lecture des baisses de prix successives comme signal de détresse du vendeur. Vous comprenez que négocier n\'est pas marchander — c\'est une stratégie globale qui intègre le timing, la psychologie et les données objectives du marché.</p>'
+                + '<p>Votre <strong>expertise juridique (' + loi + '/' + loiT + ', soit ' + loiPct + '%)</strong> est impressionnante. Vous connaissez non seulement vos droits mais aussi les zones grises que peu de professionnels maîtrisent. La loi ALUR, les implications du DPE, l\'optimisation des frais via la répartition des honoraires, la négociation du dépôt de garantie, les clauses suspensives comme outils stratégiques — tout cela fait partie de votre arsenal. C\'est ce niveau de connaissance qui fait la différence entre un acheteur lambda et un acheteur qui négocie avec la précision d\'un professionnel.</p>'
+                + '<p>En <strong>psychologie (' + psy + '/' + psyT + ', soit ' + psyPct + '%)</strong>, vous lisez les agents et les vendeurs comme un livre ouvert. Vous détectez les manipulations, les offres fantômes, les fausses urgences. Vous savez que la présence du propriétaire est un avantage, que le temps travaille pour l\'acheteur, et que chaque mot prononcé par un agent est un outil de vente calculé. Cette lucidité est rare et précieuse.</p>'
+                + '<p><strong>Mon diagnostic :</strong> Vous n\'avez pas besoin qu\'on vous apprenne à acheter — vous savez déjà. Ce que je vois dans votre profil, c\'est quelqu\'un qui pourrait ENSEIGNER ces compétences aux autres. Vous avez le regard critique, la rigueur analytique et l\'instinct de négociation que je recherche dans mon équipe. Je forme des négociateurs immobiliers professionnels, et votre profil correspond exactement à ce que je cherche. Si l\'immobilier vous passionne autant que vos résultats le suggèrent, parlons-en.</p></div>';
+                cta = '<div class="cta-title">Vous avez le profil</div><div class="cta-items"><div class="cta-item"><div class="cta-icon">1</div><div class="cta-text"><strong>Mon livre, la référence</strong> — Même à votre niveau, il contient des cas pratiques et des retours d\'expérience qui enrichiront votre approche.</div></div><div class="cta-item"><div class="cta-icon">2</div><div class="cta-text"><strong>Rejoignez notre équipe de négociateurs</strong> — Avec votre score, vous avez démontré les compétences que je recherche. Devenez négociateur immobilier professionnel et transformez cette expertise en carrière.</div></div></div><div style="text-align:center">' + amazonBtn + '<br>' + phoneBtn + '</div>';
             }
 
             document.getElementById('verdictText').textContent = verdict;
-            document.getElementById('verdictDescription').textContent = desc;
+            document.getElementById('verdictDescription').innerHTML = analysis;
             document.getElementById('ctaSection').innerHTML = cta;
 
             submitResults(total, neg, loi, psy);
