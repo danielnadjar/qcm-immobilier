@@ -5,411 +5,184 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - lesite.io QCM</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --bg-deep:#060b18; --bg-primary:#0a1628; --bg-card:#0f1f3a;
+            --accent:#3b82f6; --accent-light:#60a5fa; --accent-glow:rgba(59,130,246,0.3);
+            --accent-subtle:rgba(59,130,246,0.1); --white:#fff; --text:#e2e8f0;
+            --text-muted:#94a3b8; --text-dim:#64748b; --success:#22c55e;
+            --warning:#f59e0b; --danger:#ef4444; --border:rgba(59,130,246,0.15);
         }
+        body { font-family:'Inter',sans-serif; background:var(--bg-deep); color:var(--text); min-height:100vh; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #0a0a0a;
-            color: #f0f0f0;
-            line-height: 1.6;
-        }
+        .bg-animation { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; overflow:hidden; }
+        .bg-animation .orb { position:absolute; border-radius:50%; filter:blur(80px); opacity:0.1; animation:float 20s infinite ease-in-out; }
+        .bg-animation .orb:nth-child(1) { width:500px; height:500px; background:var(--accent); top:-200px; right:-100px; }
+        .bg-animation .orb:nth-child(2) { width:300px; height:300px; background:#8b5cf6; bottom:-100px; left:-100px; animation-delay:-10s; }
+        @keyframes float { 0%,100%{transform:translate(0,0)scale(1)} 50%{transform:translate(-50px,80px)scale(1.1)} }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        .container { position:relative; z-index:1; max-width:1400px; margin:0 auto; padding:20px; }
+
+        /* Login */
+        #loginSection { display:flex; justify-content:center; align-items:center; min-height:90vh; }
+        .login-card { background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:50px 40px; max-width:420px; width:100%; text-align:center; }
+        .login-card h2 { font-family:'Space Grotesk',sans-serif; font-size:24px; color:var(--white); margin-bottom:8px; }
+        .login-card p { color:var(--text-dim); font-size:14px; margin-bottom:30px; }
+        .login-input { width:100%; padding:14px 18px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; color:var(--white); font-size:15px; outline:none; font-family:'Inter',sans-serif; margin-bottom:16px; }
+        .login-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-subtle); }
+        .login-btn { width:100%; padding:14px; background:linear-gradient(135deg,var(--accent),#2563eb); color:var(--white); border:none; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+        .login-btn:hover { opacity:0.9; }
+        .login-error { color:var(--danger); font-size:13px; margin-top:10px; }
 
         /* Header */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 30px 0;
-            border-bottom: 1px solid #16213e;
-            margin-bottom: 40px;
-        }
+        .header { display:flex; justify-content:space-between; align-items:center; padding:20px 0; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .logo { font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700; color:var(--white); display:flex; align-items:center; gap:8px; }
+        .logo-icon { width:32px; height:32px; background:linear-gradient(135deg,var(--accent),var(--accent-light)); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+        .header-actions { display:flex; gap:10px; }
+        .header-btn { padding:8px 16px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-muted); font-size:13px; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.3s; text-decoration:none; }
+        .header-btn:hover { border-color:var(--accent); color:var(--white); }
 
-        .logo {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            color: #fff;
-        }
+        /* Tabs */
+        .tabs { display:flex; gap:4px; margin-bottom:30px; background:var(--bg-card); border-radius:14px; padding:4px; border:1px solid var(--border); }
+        .tab { flex:1; padding:12px; text-align:center; border-radius:10px; cursor:pointer; font-size:14px; font-weight:500; color:var(--text-dim); transition:all 0.3s; }
+        .tab.active { background:var(--accent); color:var(--white); font-weight:600; }
+        .tab:hover:not(.active) { color:var(--text); }
 
-        .logo-icon {
-            font-size: 20px;
-            margin-right: 8px;
-        }
-
-        .logout-btn {
-            padding: 10px 20px;
-            background-color: #e94560;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            background-color: #d63c52;
-        }
-
-        /* Login Section */
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .login-form {
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .login-form h1 {
-            font-size: 32px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #f0f0f0;
-        }
-
-        input[type="password"] {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #16213e;
-            background-color: #151515;
-            color: #fff;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="password"]:focus {
-            outline: none;
-            border-color: #e94560;
-            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #e94560;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn:hover {
-            background-color: #d63c52;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(233, 69, 96, 0.3);
-        }
-
-        .error-message {
-            color: #e94560;
-            font-size: 14px;
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        /* Dashboard */
-        .dashboard {
-            display: none;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .stat-card {
-            background-color: #151515;
-            padding: 25px;
-            border-radius: 8px;
-            border: 1px solid #16213e;
-            border-left: 4px solid #e94560;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 10px;
-        }
-
-        .stat-value {
-            font-size: 36px;
-            font-weight: 700;
-            color: #e94560;
-        }
+        /* Stats */
+        .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:30px; }
+        .stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:24px; text-align:center; }
+        .stat-card .stat-icon { width:44px; height:44px; border-radius:12px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+        .stat-card .stat-value { font-family:'Space Grotesk',sans-serif; font-size:28px; font-weight:700; color:var(--white); }
+        .stat-card .stat-label { font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px; }
 
         /* Table */
-        .table-container {
-            background-color: #151515;
-            border-radius: 8px;
-            border: 1px solid #16213e;
-            overflow: hidden;
-            margin-bottom: 30px;
+        .table-card { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:24px; overflow-x:auto; }
+        .table-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px; }
+        .table-header h3 { font-family:'Space Grotesk',sans-serif; font-size:18px; color:var(--white); }
+        .table-actions { display:flex; gap:10px; }
+        .search-input { padding:10px 16px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:10px; color:var(--white); font-size:13px; outline:none; font-family:'Inter',sans-serif; width:220px; }
+        .search-input:focus { border-color:var(--accent); }
+        .export-btn { padding:10px 16px; background:var(--accent-subtle); border:1px solid var(--border); border-radius:10px; color:var(--accent-light); font-size:13px; cursor:pointer; font-family:'Inter',sans-serif; }
+        .export-btn:hover { background:var(--accent); color:var(--white); }
+
+        table { width:100%; border-collapse:collapse; }
+        th { padding:12px 16px; text-align:left; font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--border); cursor:pointer; white-space:nowrap; }
+        th:hover { color:var(--accent-light); }
+        td { padding:14px 16px; font-size:14px; border-bottom:1px solid rgba(255,255,255,0.03); }
+        tr:hover td { background:rgba(255,255,255,0.02); }
+        .no-data { text-align:center; padding:60px 20px; color:var(--text-dim); }
+
+        /* Questions Editor */
+        #questionsTab { display:none; }
+        .question-editor-card { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:20px; margin-bottom:16px; transition:all 0.3s; }
+        .question-editor-card:hover { border-color:var(--accent); }
+        .qe-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; cursor:pointer; }
+        .qe-badge { display:flex; align-items:center; gap:10px; }
+        .qe-number { background:var(--accent-subtle); color:var(--accent-light); font-size:12px; font-weight:700; padding:4px 10px; border-radius:6px; font-family:'Space Grotesk',sans-serif; }
+        .qe-category { font-size:11px; padding:4px 10px; border-radius:6px; font-weight:600; text-transform:uppercase; }
+        .qe-toggle { color:var(--text-dim); font-size:18px; transition:transform 0.3s; }
+        .qe-toggle.open { transform:rotate(180deg); }
+        .qe-body { display:none; padding-top:12px; border-top:1px solid var(--border); }
+        .qe-body.open { display:block; }
+        .qe-label { font-size:12px; color:var(--text-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px; }
+        .qe-textarea { width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:10px; color:var(--white); font-size:14px; font-family:'Inter',sans-serif; resize:vertical; min-height:60px; outline:none; margin-bottom:14px; }
+        .qe-textarea:focus { border-color:var(--accent); }
+        .qe-option-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+        .qe-option-input { flex:1; padding:10px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:8px; color:var(--white); font-size:13px; font-family:'Inter',sans-serif; outline:none; }
+        .qe-option-input:focus { border-color:var(--accent); }
+        .qe-correct-check { width:20px; height:20px; accent-color:var(--success); cursor:pointer; }
+        .qe-correct-label { font-size:11px; color:var(--text-dim); white-space:nowrap; }
+        .qe-save-btn { padding:10px 20px; background:var(--success); color:var(--white); border:none; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; margin-top:10px; font-family:'Inter',sans-serif; }
+        .qe-save-btn:hover { opacity:0.9; }
+        .qe-save-msg { color:var(--success); font-size:12px; margin-left:10px; display:inline; }
+
+        @media (max-width:768px) {
+            .stats-grid { grid-template-columns:repeat(2,1fr); }
+            .tabs { flex-wrap:wrap; }
         }
 
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid #16213e;
-        }
-
-        .table-header h2 {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .table-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .search-input {
-            padding: 8px 12px;
-            border: 1px solid #16213e;
-            background-color: #0a0a0a;
-            color: #fff;
-            border-radius: 4px;
-            font-size: 14px;
-            width: 200px;
-        }
-
-        .export-btn {
-            padding: 8px 16px;
-            background-color: #16213e;
-            color: #e94560;
-            border: 1px solid #16213e;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-
-        .export-btn:hover {
-            background-color: #e94560;
-            color: #fff;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background-color: #0a0a0a;
-        }
-
-        th {
-            padding: 15px 20px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #888;
-            border-bottom: 1px solid #16213e;
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-        }
-
-        th:hover {
-            color: #e94560;
-        }
-
-        th.sortable::after {
-            content: ' ⇅';
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        th.sortable:hover::after {
-            opacity: 1;
-        }
-
-        th.sorted::after {
-            opacity: 1;
-            content: ' ▼';
-        }
-
-        th.sorted.asc::after {
-            content: ' ▲';
-        }
-
-        td {
-            padding: 15px 20px;
-            border-bottom: 1px solid #16213e;
-            font-size: 14px;
-        }
-
-        tbody tr:hover {
-            background-color: #1a1a1a;
-        }
-
-        .score-cell {
-            font-weight: 600;
-            color: #e94560;
-        }
-
-        .category-score {
-            font-size: 13px;
-            color: #888;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #888;
-        }
-
-        .spinner {
-            border: 3px solid #16213e;
-            border-top: 3px solid #e94560;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .no-data {
-            text-align: center;
-            padding: 40px;
-            color: #888;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            table {
-                font-size: 12px;
-            }
-
-            td, th {
-                padding: 10px;
-            }
-
-            .search-input {
-                width: 150px;
-            }
-
-            .table-controls {
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-
-            header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-        }
+        #dashboard { display:none; }
     </style>
 </head>
 <body>
+    <div class="bg-animation"><div class="orb"></div><div class="orb"></div></div>
+
     <div class="container">
-        <!-- Login Form -->
-        <div id="loginSection" class="login-container">
-            <div class="login-form">
-                <h1>🏠 Admin Dashboard</h1>
-                <div class="form-group">
-                    <label for="password">Mot de passe</label>
-                    <input type="password" id="password" placeholder="Entrez le mot de passe administrateur">
-                </div>
-                <button class="btn" onclick="login()">Connexion</button>
-                <div class="error-message" id="loginError"></div>
+        <!-- LOGIN -->
+        <div id="loginSection">
+            <div class="login-card">
+                <div style="font-size:40px;margin-bottom:20px">🔐</div>
+                <h2>Admin Dashboard</h2>
+                <p>Accès réservé à Coach Daniel</p>
+                <input type="password" class="login-input" id="password" placeholder="Mot de passe" onkeypress="if(event.key==='Enter')login()">
+                <button class="login-btn" onclick="login()">Se connecter</button>
+                <div class="login-error" id="loginError"></div>
             </div>
         </div>
 
-        <!-- Dashboard -->
-        <div id="dashboard" class="dashboard">
-            <header>
-                <div class="logo">
-                    <span class="logo-icon">🏠</span>lesite.io - Admin
-                </div>
-                <button class="logout-btn" onclick="logout()">Déconnexion</button>
-            </header>
-
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Total Participants</div>
-                    <div class="stat-value" id="totalParticipants">-</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Score Moyen</div>
-                    <div class="stat-value" id="averageScore">-</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Meilleur Score</div>
-                    <div class="stat-value" id="bestScore">-</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Pire Score</div>
-                    <div class="stat-value" id="worstScore">-</div>
+        <!-- DASHBOARD -->
+        <div id="dashboard">
+            <div class="header">
+                <div class="logo"><div class="logo-icon">🏠</div> lesite.io Admin</div>
+                <div class="header-actions">
+                    <a href="index.html" class="header-btn">← Retour au QCM</a>
+                    <button class="header-btn" onclick="logout()">Déconnexion</button>
                 </div>
             </div>
 
-            <!-- Submissions Table -->
-            <div class="table-container">
-                <div class="table-header">
-                    <h2>Résultats des participants</h2>
-                    <div class="table-controls">
-                        <input type="text" class="search-input" id="searchInput" placeholder="Rechercher..." onkeyup="filterTable()">
-                        <button class="export-btn" onclick="exportCSV()">📥 Exporter CSV</button>
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('results')">📊 Résultats</div>
+                <div class="tab" onclick="switchTab('questions')">✏️ Éditer les questions</div>
+            </div>
+
+            <!-- RESULTS TAB -->
+            <div id="resultsTab">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:var(--accent-subtle)">👥</div>
+                        <div class="stat-value" id="totalParticipants">0</div>
+                        <div class="stat-label">Participants</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:rgba(245,158,11,0.15)">📊</div>
+                        <div class="stat-value" id="averageScore">0</div>
+                        <div class="stat-label">Score moyen</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:rgba(34,197,94,0.15)">🏆</div>
+                        <div class="stat-value" id="bestScore">0</div>
+                        <div class="stat-label">Meilleur</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:rgba(239,68,68,0.15)">📉</div>
+                        <div class="stat-value" id="worstScore">0</div>
+                        <div class="stat-label">Plus bas</div>
                     </div>
                 </div>
 
-                <div id="tableContent">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p>Chargement des données...</p>
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Résultats des participants</h3>
+                        <div class="table-actions">
+                            <input type="text" class="search-input" id="searchInput" placeholder="Rechercher..." oninput="filterTable()">
+                            <button class="export-btn" onclick="exportCSV()">📥 CSV</button>
+                        </div>
+                    </div>
+                    <div id="tableContent"><div class="no-data">Chargement...</div></div>
+                </div>
+            </div>
+
+            <!-- QUESTIONS TAB -->
+            <div id="questionsTab">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3 style="font-family:'Space Grotesk',sans-serif;color:var(--white)">Éditer les 35 questions</h3>
+                    <div style="display:flex;gap:10px">
+                        <button class="export-btn" onclick="exportQuestionsJSON()">📥 Exporter JSON</button>
+                        <label class="export-btn" style="cursor:pointer">📤 Importer JSON<input type="file" accept=".json" onchange="importQuestionsJSON(event)" style="display:none"></label>
                     </div>
                 </div>
+                <div id="questionsEditor"></div>
             </div>
         </div>
     </div>
@@ -419,20 +192,18 @@
         const API_URL = 'https://cbfypewsudbcuslhpkzx.supabase.co/functions/v1/qcm-api?admin=CoachDaniel2026!';
         let allData = [];
         let sortConfig = { key: null, direction: 'asc' };
+        let editableQuestions = [];
 
         function login() {
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('loginError');
-
-            if (password === ADMIN_PASSWORD) {
+            if (document.getElementById('password').value === ADMIN_PASSWORD) {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
                 loadData();
+                loadQuestionsForEditor();
             } else {
-                errorDiv.textContent = 'Mot de passe incorrect';
+                document.getElementById('loginError').textContent = 'Mot de passe incorrect';
             }
         }
-
         function logout() {
             document.getElementById('password').value = '';
             document.getElementById('loginError').textContent = '';
@@ -440,15 +211,21 @@
             document.getElementById('loginSection').style.display = 'flex';
         }
 
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (tab==='results'?i===0:i===1)));
+            document.getElementById('resultsTab').style.display = tab === 'results' ? 'block' : 'none';
+            document.getElementById('questionsTab').style.display = tab === 'questions' ? 'block' : 'none';
+        }
+
+        // ===== RESULTS =====
         function loadData() {
             fetch(API_URL)
-                .then(response => response.text())
+                .then(r => r.text())
                 .then(text => {
                     try {
                         const data = JSON.parse(text);
                         if (data.submissions) {
                             allData = data.submissions;
-                            // Use stats from API if available
                             if (data.stats) {
                                 document.getElementById('totalParticipants').textContent = data.stats.total_submissions || 0;
                                 document.getElementById('averageScore').textContent = data.stats.avg_score || 0;
@@ -458,151 +235,175 @@
                         } else if (Array.isArray(data)) {
                             allData = data;
                             updateStats();
-                        } else {
-                            allData = [];
-                        }
+                        } else { allData = []; }
                         renderTable();
                     } catch(e) {
-                        console.error('Parse error:', e, 'Raw:', text.substring(0, 200));
-                        document.getElementById('tableContent').innerHTML = '<div class="no-data">Erreur de format des donn\u00e9es</div>';
+                        document.getElementById('tableContent').innerHTML = '<div class="no-data">Erreur de format</div>';
                     }
                 })
-                .catch(error => {
-                    console.error('Error loading data:', error);
-                    document.getElementById('tableContent').innerHTML = '<div class="no-data">Erreur lors du chargement des donn\u00e9es</div>';
+                .catch(() => {
+                    document.getElementById('tableContent').innerHTML = '<div class="no-data">Erreur de chargement</div>';
                 });
         }
 
         function updateStats() {
-            const totalParticipants = allData.length;
+            const n = allData.length;
             const scores = allData.map(d => d.score || 0);
-            const averageScore = totalParticipants > 0 ? (scores.reduce((a, b) => a + b, 0) / totalParticipants).toFixed(1) : 0;
-            const bestScore = totalParticipants > 0 ? Math.max(...scores) : 0;
-            const worstScore = totalParticipants > 0 ? Math.min(...scores) : 0;
-
-            document.getElementById('totalParticipants').textContent = totalParticipants;
-            document.getElementById('averageScore').textContent = averageScore;
-            document.getElementById('bestScore').textContent = bestScore;
-            document.getElementById('worstScore').textContent = worstScore;
+            document.getElementById('totalParticipants').textContent = n;
+            document.getElementById('averageScore').textContent = n ? (scores.reduce((a,b)=>a+b,0)/n).toFixed(1) : 0;
+            document.getElementById('bestScore').textContent = n ? Math.max(...scores) : 0;
+            document.getElementById('worstScore').textContent = n ? Math.min(...scores) : 0;
         }
 
         function renderTable() {
-            if (allData.length === 0) {
-                document.getElementById('tableContent').innerHTML = '<div class="no-data">Aucune donnée disponible</div>';
-                return;
-            }
-
-            let html = '<table><thead><tr>';
-            html += '<th class="sortable" onclick="sortTable(\'created_at\')">Date</th>';
-            html += '<th class="sortable" onclick="sortTable(\'prenom\')">Prénom</th>';
-            html += '<th class="sortable" onclick="sortTable(\'email\')">Email</th>';
-            html += '<th class="sortable" onclick="sortTable(\'score\')">Score</th>';
-            html += '<th>Négociation</th>';
-            html += '<th>Loi</th>';
-            html += '<th>Psychologie</th>';
-            html += '</tr></thead><tbody>';
-
-            const sortedData = [...allData].sort((a, b) => {
+            if (!allData.length) { document.getElementById('tableContent').innerHTML = '<div class="no-data">Aucune donnée</div>'; return; }
+            let html = '<table><thead><tr><th onclick="sortTable(\'created_at\')">Date</th><th onclick="sortTable(\'prenom\')">Prénom</th><th onclick="sortTable(\'email\')">Email</th><th onclick="sortTable(\'score\')">Score</th><th>Négo</th><th>Loi</th><th>Psy</th></tr></thead><tbody>';
+            const sorted = [...allData].sort((a,b) => {
                 if (!sortConfig.key) return 0;
-
-                let aVal = a[sortConfig.key];
-                let bVal = b[sortConfig.key];
-
-                if (typeof aVal === 'string') {
-                    aVal = aVal.toLowerCase();
-                    bVal = bVal.toLowerCase();
-                }
-
-                if (sortConfig.direction === 'asc') {
-                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
-                } else {
-                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
-                }
+                let av=a[sortConfig.key], bv=b[sortConfig.key];
+                if (typeof av==='string'){av=av.toLowerCase();bv=(bv||'').toLowerCase();}
+                return sortConfig.direction==='asc'?(av>bv?1:av<bv?-1:0):(av<bv?1:av>bv?-1:0);
             });
-
-            sortedData.forEach(row => {
-                const date = new Date(row.created_at || row.timestamp).toLocaleDateString('fr-FR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                html += '<tr>';
-                html += `<td>${date}</td>`;
-                html += `<td>${row.prenom || row.firstName || '-'}</td>`;
-                html += `<td>${row.email || '-'}</td>`;
-                html += `<td class="score-cell">${row.score}/${row.total || 35}</td>`;
-                html += `<td class="category-score">${row.score_negociation || 0}/${getMaxScore('Négociation prix')}</td>`;
-                html += `<td class="category-score">${row.score_loi || 0}/${getMaxScore('Loi')}</td>`;
-                html += `<td class="category-score">${row.score_psychologie || 0}/${getMaxScore('Psychologie vendeur/acheteur')}</td>`;
-                html += '</tr>';
+            sorted.forEach(row => {
+                const d = new Date(row.created_at||row.timestamp).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+                html += '<tr><td>'+d+'</td><td>'+(row.prenom||row.firstName||'-')+'</td><td>'+(row.email||'-')+'</td><td style="color:var(--accent-light);font-weight:600">'+row.score+'/'+(row.total||35)+'</td><td>'+(row.score_negociation||0)+'</td><td>'+(row.score_loi||0)+'</td><td>'+(row.score_psychologie||0)+'</td></tr>';
             });
-
             html += '</tbody></table>';
             document.getElementById('tableContent').innerHTML = html;
         }
 
-        function getMaxScore(category) {
-            if (category === 'Négociation prix') return 12;
-            if (category === 'Loi') return 9;
-            return 9;
-        }
-
         function sortTable(key) {
-            if (sortConfig.key === key) {
-                sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
-            } else {
-                sortConfig.key = key;
-                sortConfig.direction = 'asc';
-            }
+            sortConfig = sortConfig.key===key ? {key,direction:sortConfig.direction==='asc'?'desc':'asc'} : {key,direction:'asc'};
             renderTable();
         }
 
         function filterTable() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('table tbody tr');
-
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
+            const s = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('table tbody tr').forEach(r => r.style.display = r.textContent.toLowerCase().includes(s)?'':'none');
         }
 
         function exportCSV() {
-            if (allData.length === 0) {
-                alert('Aucune donnée à exporter');
-                return;
-            }
-
+            if (!allData.length) { alert('Aucune donnée'); return; }
             let csv = 'Date,Prénom,Email,Score,Négociation,Loi,Psychologie\n';
-
-            allData.forEach(row => {
-                const date = new Date(row.created_at || row.timestamp).toLocaleDateString('fr-FR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                csv += `"${date}","${row.prenom || row.firstName || ''}","${row.email || ''}",${row.score || 0},${row.score_negociation || 0}/${getMaxScore('Négociation prix')},${row.score_loi || 0}/${getMaxScore('Loi')},${row.score_psychologie || 0}/${getMaxScore('Psychologie vendeur/acheteur')}\n`;
+            allData.forEach(r => {
+                const d = new Date(r.created_at||r.timestamp).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+                csv += '"'+d+'","'+(r.prenom||r.firstName||'')+'","'+(r.email||'')+'",'+r.score+','+(r.score_negociation||0)+','+(r.score_loi||0)+','+(r.score_psychologie||0)+'\n';
             });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `qcm-results-${new Date().toISOString().split('T')[0]}.csv`;
+            link.download = 'qcm-results-'+new Date().toISOString().split('T')[0]+'.csv';
             link.click();
         }
 
-        // Handle enter key in password field
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && document.getElementById('loginSection').style.display !== 'none') {
-                login();
+        // ===== QUESTIONS EDITOR =====
+        function loadQuestionsForEditor() {
+            const stored = localStorage.getItem('qcm_questions');
+            if (stored) {
+                try { editableQuestions = JSON.parse(stored); } catch(e) { editableQuestions = getDefaultQuestions(); }
+            } else {
+                editableQuestions = getDefaultQuestions();
             }
-        });
+            renderQuestionsEditor();
+        }
+
+        function getDefaultQuestions() {
+            return [
+                {id:1,cat:"Psychologie vendeur",q:"Un agent immobilier vous dit : \"J'ai déjà 3 visites demain sur ce bien\". Quelle est la bonne réaction de l'acquéreur averti ?",opts:["Se dépêcher de faire une offre au prix","Considérer que c'est une technique de pression classique","Surenchérir de 5%","Annuler la visite","Faire la visite quand même ! Plusieurs visites ne veut pas dire qu'ils vont acheter"],correct:[4]},
+                {id:2,cat:"Négociation prix",q:"Le prix affiché est de 300 000€. L'agent dit que le vendeur est \"ferme sur son prix\". Que signifie cette phrase dans 90% des cas ?",opts:["Le vendeur n'acceptera aucune négociation","Le vendeur a une marge mais l'agent teste votre réaction","Le bien est sous-évalué","L'agent n'a pas le droit de négocier sans accord écrit","L'agent veut éviter la négociation de sa commission"],correct:[1,4]},
+                {id:3,cat:"Loi",q:"Quel est le délai légal de rétractation pour un acquéreur ?",opts:["7 jours calendaires","14 jours ouvrés","10 jours calendaires","10 jours ouvrés"],correct:[2]},
+                {id:4,cat:"Négociation prix",q:"Un vendeur baisse de 250K à 230K après 6 mois. Stratégie optimale ?",opts:["Offrir 230K","Attendre 3 mois de plus","Offrir 225K","Offrir 200K, le vendeur est en position de faiblesse"],correct:[3]},
+                {id:5,cat:"Psychologie vendeur",q:"L'agent dit \"ce bien est parfait pour vous\". Quel piège ?",opts:["Biais de confirmation pour accélérer votre décision","Aucun piège","Veut vendre le plus cher","N'a pas d'autres biens"],correct:[0]},
+                {id:6,cat:"Loi",q:"Que impose la loi ALUR concernant les prix dans les annonces ?",opts:["Afficher uniquement le prix net vendeur","Afficher les honoraires TTC, leur %, et préciser charge acquéreur/vendeur","Interdiction d'afficher les commissions","Afficher un prix unique tout compris"],correct:[1]},
+                {id:7,cat:"Négociation prix",q:"Offre à 280K, bien à 310K. L'agent dit \"le vendeur accepterait 300K\". Que faire ?",opts:["Accepter 300K","Abandonner","Monter à 295K","Contre-offre à 285K, le vendeur est prêt à négocier"],correct:[3]},
+                {id:8,cat:"Loi",q:"DPE lettre F. Conséquence depuis 2025 ?",opts:["Aucune, juste informatif","Plus de mise en location + travaux = argument de négociation majeur","Pas de prêt bancaire possible","Vendeur obligé de faire les travaux"],correct:[1]},
+                {id:9,cat:"Psychologie vendeur",q:"L'agent dit \"Je vais être honnête avec vous\". Que penser ?",opts:["Bon signe","Va révéler un défaut","Technique de manipulation pour gagner votre confiance","Agent de confiance"],correct:[2]},
+                {id:10,cat:"Psychologie vendeur",q:"Le propriétaire est présent à la visite. Pourquoi c'est un avantage ?",opts:["Pas un avantage, il va embellir","Observer ses réactions émotionnelles et motivations","Négocier directement sans commission","Il connaît mieux le bien"],correct:[1]},
+                {id:11,cat:"Loi",q:"Montant maximum des frais d'agence ?",opts:["Pas de plafond légal, honoraires libres mais affichés","5% max","8% max","Barème préfectoral"],correct:[0]},
+                {id:12,cat:"Loi",q:"Honoraires charge acquéreur, conséquence ?",opts:["Frais de notaire calculés HORS honoraires d'agence","Frais de notaire sur prix total","Le vendeur paye","Inclus dans le prix"],correct:[0]},
+                {id:13,cat:"Négociation prix",q:"Le vendeur dit \"c'est mon dernier prix\". Réaction ?",opts:["Accepter","Augmenter votre offre","Attendre 48-72h puis revenir avec la même offre légèrement améliorée","Passer au suivant"],correct:[2]},
+                {id:14,cat:"Loi",q:"Qu'est-ce qu'une clause suspensive ?",opts:["Suspend définitivement la vente","Condition qui annule la vente sans pénalité si non réalisée","Pénalité financière","Délai supplémentaire pour le vendeur"],correct:[1]},
+                {id:15,cat:"Psychologie vendeur",q:"Visite \"en exclusivité\" avant mise en ligne. Vrai objectif ?",opts:["Privilège rare","Obligation légale","Tester le marché","Créer urgence et rareté pour pousser une offre rapide"],correct:[3]},
+                {id:16,cat:"Loi",q:"Frais de notaire dans l'ancien pour 200K ?",opts:["~3% = 6K","~7-8% = 14K à 16K","~10% = 20K","~5% = 10K"],correct:[1]},
+                {id:17,cat:"Négociation prix",q:"\"Le vendeur a eu une offre à 290K hier\". Interprétation ?",opts:["Offre fantôme pour ancrer un prix plancher","Le bien vaut plus, proposer davantage","Vendeur trop gourmand","Agent transparent"],correct:[0]},
+                {id:18,cat:"Négociation prix",q:"Fissure sur mur porteur, l'agent dit \"c'est esthétique\". Risque ?",opts:["Aucun risque","Risque majeur, l'agent n'est pas expert bâtiment","Demander de repeindre","Couvert par décennale"],correct:[1]},
+                {id:19,cat:"Psychologie vendeur",q:"Pourquoi les négociateurs ne savent PAS négocier selon Coach Daniel ?",opts:["Pas le droit juridiquement","Vendeurs refusent","Formation inexistante, confondent négocier et transmettre une offre","Payés par le vendeur"],correct:[2]},
+                {id:20,cat:"Psychologie vendeur",q:"Bien en vente 12 mois, 3 baisses. Signal ?",opts:["Vendeur patient","Détresse psychologique, votre pouvoir augmente","Vice caché","Agent incompétent"],correct:[1]},
+                {id:21,cat:"Loi",q:"Mandat simple vs exclusif pour l'acquéreur ?",opts:["Exclusif = plus de frais","Aucune différence","Exclusif interdit de négocier","Simple = confusion (plusieurs agences), exclusif = un interlocuteur impliqué"],correct:[3]},
+                {id:22,cat:"Psychologie vendeur",q:"\"À ce prix-là, il ne restera pas longtemps\". Analyse ?",opts:["Si c'était imbattable, pas besoin de convaincre","Dépêchez-vous","Agent a vérifié les prix","Bien sous-évalué"],correct:[0]},
+                {id:23,cat:"Loi",q:"Dépôt de garantie de 10% : négociable ?",opts:["Non, montant légal","Oui, totalement négociable, aucun texte n'impose de montant","Non, fixé par le notaire","Oui, si vendeur d'accord pour 0%"],correct:[1]},
+                {id:24,cat:"Négociation prix",q:"Vendeur vend car mutation. Pourquoi c'est stratégique ?",opts:["Pas important","Bien moins entretenu","Mutation = délai contraint = levier de négociation","Quartier perd des habitants"],correct:[2]},
+                {id:25,cat:"Négociation prix",q:"Agent dit 20K de travaux. Règle d'or ?",opts:["Faire confiance à l'agent","Vendeur fait les travaux","Déduire 20K du prix","Multiplier par 1.5 à 2 + chiffrer par professionnel indépendant"],correct:[3]},
+                {id:26,cat:"Loi",q:"Charges impayées en copropriété ?",opts:["Acquéreur hérite des dettes","Vendeur responsable, notaire vérifie au syndic","Copropriété absorbe","Agent responsable"],correct:[1]},
+                {id:27,cat:"Psychologie vendeur",q:"Agent parle de lui 10 min avant d'écouter. Que révèle-t-il ?",opts:["Mal formé, pas d'écoute active","Passionné et rassurant","Procédure standard","Compétence et expérience"],correct:[0]},
+                {id:28,cat:"Loi",q:"Offre acceptée oralement. Juridiquement contraignant ?",opts:["Oui, accord oral = contrat","Oui si agent témoin","Non, mais agent peut forcer","Non, rien sans compromis signé"],correct:[3]},
+                {id:29,cat:"Négociation prix",q:"\"Quartier en gentrification, prix vont exploser\". Réaction ?",opts:["Vérifier données objectives + demander preuves : prix 5 ans, urbanisme, commerces","Acheter vite","Demander preuves écrites","Surenchérir"],correct:[0]},
+                {id:30,cat:"Négociation prix",q:"Bien à 250K vs 350K : lequel est le moins cher ?",opts:["250K évidemment","350K car plus grand","Impossible sans connaître la surface (prix au m²)","Celui avec moins de travaux"],correct:[2]},
+                {id:31,cat:"Négociation prix",q:"La rentabilité immobilière, c'est quoi ?",opts:["% de plus-value à la revente","(Prix vente - achat) / années","Combien vous gagnez/mois et en combien de temps vous remboursez","Taux crédit vs taux marché"],correct:[2]},
+                {id:32,cat:"Négociation prix",q:"2 biens à 450K : lequel est moins cher ?",opts:["Comparer pièces et luminosité","Demander à l'agent","Quartier et prestations","Comparer le prix au m²"],correct:[3]},
+                {id:33,cat:"Négociation prix",q:"Meilleure stratégie pour la première offre ?",opts:["5% sous le prix","Prix demandé","Au-dessus pour sécuriser","Offre significativement basse pour tester et garder une marge"],correct:[3]},
+                {id:34,cat:"Psychologie vendeur",q:"Ami agent immobilier, lui faire confiance ?",opts:["Oui, un ami ne désavantage pas","Oui, avec réduction d'honoraires","Non, sa commission reste prioritaire","Oui avec mandat exclusif"],correct:[2]},
+                {id:35,cat:"Négociation prix",q:"\"C'est le prix du marché\". Bonne réponse ?",opts:["C'est vrai, ils connaissent le marché","Vérifier en ligne","Attestation notaire","Le prix du marché c'est VOUS qui le fixez"],correct:[3]}
+            ];
+        }
+
+        function renderQuestionsEditor() {
+            const container = document.getElementById('questionsEditor');
+            container.innerHTML = '';
+            editableQuestions.forEach((q,i) => {
+                const catClass = q.cat.includes('gociation')?'background:rgba(245,158,11,0.15);color:#fbbf24':q.cat.includes('Loi')?'background:rgba(139,92,246,0.15);color:#a78bfa':'background:rgba(6,182,212,0.15);color:#22d3ee';
+                let optionsHTML = '';
+                q.opts.forEach((opt,oi) => {
+                    const checked = q.correct.includes(oi) ? 'checked' : '';
+                    optionsHTML += '<div class="qe-option-row"><input type="checkbox" class="qe-correct-check" '+checked+' onchange="toggleCorrect('+i+','+oi+',this.checked)"><span class="qe-correct-label">✓</span><input class="qe-option-input" value="'+opt.replace(/"/g,'&quot;')+'" onchange="updateOption('+i+','+oi+',this.value)"></div>';
+                });
+                container.innerHTML += '<div class="question-editor-card"><div class="qe-header" onclick="toggleQE('+i+')"><div class="qe-badge"><span class="qe-number">Q'+(i+1)+'</span><span class="qe-category" style="'+catClass+'">'+q.cat+'</span><span style="color:var(--text);font-size:13px;margin-left:8px">'+q.q.substring(0,60)+'...</span></div><span class="qe-toggle" id="toggle'+i+'">▼</span></div><div class="qe-body" id="body'+i+'"><div class="qe-label">Question</div><textarea class="qe-textarea" onchange="updateQuestion('+i+',this.value)">'+q.q+'</textarea><div class="qe-label">Options (cochez la/les bonne(s) réponse(s))</div>'+optionsHTML+'<button class="qe-save-btn" onclick="saveQuestions('+i+')">💾 Sauvegarder</button><span class="qe-save-msg" id="saveMsg'+i+'"></span></div></div>';
+            });
+        }
+
+        function toggleQE(i) {
+            const body = document.getElementById('body'+i);
+            const toggle = document.getElementById('toggle'+i);
+            body.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+
+        function updateQuestion(i, val) { editableQuestions[i].q = val; }
+        function updateOption(i, oi, val) { editableQuestions[i].opts[oi] = val; }
+        function toggleCorrect(i, oi, checked) {
+            if (checked) { if (!editableQuestions[i].correct.includes(oi)) editableQuestions[i].correct.push(oi); }
+            else { editableQuestions[i].correct = editableQuestions[i].correct.filter(x=>x!==oi); }
+        }
+
+        function saveQuestions(i) {
+            localStorage.setItem('qcm_questions', JSON.stringify(editableQuestions));
+            const msg = document.getElementById('saveMsg'+i);
+            msg.textContent = '✓ Sauvegardé localement';
+            setTimeout(()=>msg.textContent='', 3000);
+        }
+
+        function exportQuestionsJSON() {
+            const blob = new Blob([JSON.stringify(editableQuestions, null, 2)], {type:'application/json'});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'qcm-questions.json';
+            link.click();
+        }
+
+        function importQuestionsJSON(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                try {
+                    editableQuestions = JSON.parse(ev.target.result);
+                    localStorage.setItem('qcm_questions', JSON.stringify(editableQuestions));
+                    renderQuestionsEditor();
+                    alert('Questions importées avec succès !');
+                } catch(e) { alert('Erreur de format JSON'); }
+            };
+            reader.readAsText(file);
+        }
     </script>
 </body>
 </html>
