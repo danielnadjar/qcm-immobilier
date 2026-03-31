@@ -254,7 +254,7 @@
         }
 
         th.sortable::after {
-            content: ' â';
+            content: ' ⇅';
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -265,11 +265,11 @@
 
         th.sorted::after {
             opacity: 1;
-            content: ' â¼';
+            content: ' ▼';
         }
 
         th.sorted.asc::after {
-            content: ' â²';
+            content: ' ▲';
         }
 
         td {
@@ -355,7 +355,7 @@
         <!-- Login Form -->
         <div id="loginSection" class="login-container">
             <div class="login-form">
-                <h1>ð  Admin Dashboard</h1>
+                <h1>🏠 Admin Dashboard</h1>
                 <div class="form-group">
                     <label for="password">Mot de passe</label>
                     <input type="password" id="password" placeholder="Entrez le mot de passe administrateur">
@@ -369,9 +369,9 @@
         <div id="dashboard" class="dashboard">
             <header>
                 <div class="logo">
-                    <span class="logo-icon">ð </span>lesite.io - Admin
+                    <span class="logo-icon">🏠</span>lesite.io - Admin
                 </div>
-                <button class="logout-btn" onclick="logout()">DÃ©connexion</button>
+                <button class="logout-btn" onclick="logout()">Déconnexion</button>
             </header>
 
             <!-- Stats Cards -->
@@ -397,17 +397,17 @@
             <!-- Submissions Table -->
             <div class="table-container">
                 <div class="table-header">
-                    <h2>RÃ©sultats des participants</h2>
+                    <h2>Résultats des participants</h2>
                     <div class="table-controls">
                         <input type="text" class="search-input" id="searchInput" placeholder="Rechercher..." onkeyup="filterTable()">
-                        <button class="export-btn" onclick="exportCSV()">ð¥ Exporter CSV</button>
+                        <button class="export-btn" onclick="exportCSV()">📥 Exporter CSV</button>
                     </div>
                 </div>
 
                 <div id="tableContent">
                     <div class="loading">
                         <div class="spinner"></div>
-                        <p>Chargement des donnÃ©es...</p>
+                        <p>Chargement des données...</p>
                     </div>
                 </div>
             </div>
@@ -442,15 +442,34 @@
 
         function loadData() {
             fetch(API_URL)
-                .then(response => response.json())
-                .then(data => {
-                    allData = data || [];
-                    updateStats();
-                    renderTable();
+                .then(response => response.text())
+                .then(text => {
+                    try {
+                        const data = JSON.parse(text);
+                        if (data.submissions) {
+                            allData = data.submissions;
+                            // Use stats from API if available
+                            if (data.stats) {
+                                document.getElementById('totalParticipants').textContent = data.stats.total_submissions || 0;
+                                document.getElementById('averageScore').textContent = data.stats.avg_score || 0;
+                                document.getElementById('bestScore').textContent = data.stats.best_score || 0;
+                                document.getElementById('worstScore').textContent = data.stats.worst_score || 0;
+                            }
+                        } else if (Array.isArray(data)) {
+                            allData = data;
+                            updateStats();
+                        } else {
+                            allData = [];
+                        }
+                        renderTable();
+                    } catch(e) {
+                        console.error('Parse error:', e, 'Raw:', text.substring(0, 200));
+                        document.getElementById('tableContent').innerHTML = '<div class="no-data">Erreur de format des donn\u00e9es</div>';
+                    }
                 })
                 .catch(error => {
                     console.error('Error loading data:', error);
-                    document.getElementById('tableContent').innerHTML = '<div class="no-data">Erreur lors du chargement des donnÃ©es</div>';
+                    document.getElementById('tableContent').innerHTML = '<div class="no-data">Erreur lors du chargement des donn\u00e9es</div>';
                 });
         }
 
@@ -469,16 +488,16 @@
 
         function renderTable() {
             if (allData.length === 0) {
-                document.getElementById('tableContent').innerHTML = '<div class="no-data">Aucune donnÃ©e disponible</div>';
+                document.getElementById('tableContent').innerHTML = '<div class="no-data">Aucune donnée disponible</div>';
                 return;
             }
 
             let html = '<table><thead><tr>';
             html += '<th class="sortable" onclick="sortTable(\'timestamp\')">Date</th>';
-            html += '<th class="sortable" onclick="sortTable(\'firstName\')">PrÃ©nom</th>';
+            html += '<th class="sortable" onclick="sortTable(\'firstName\')">Prénom</th>';
             html += '<th class="sortable" onclick="sortTable(\'email\')">Email</th>';
             html += '<th class="sortable" onclick="sortTable(\'score\')">Score</th>';
-            html += '<th>NÃ©gociation</th>';
+            html += '<th>Négociation</th>';
             html += '<th>Loi</th>';
             html += '<th>Psychologie</th>';
             html += '</tr></thead><tbody>';
@@ -515,7 +534,7 @@
                 html += `<td>${row.firstName || '-'}</td>`;
                 html += `<td>${row.email || '-'}</td>`;
                 html += `<td class="score-cell">${row.score}/${row.total || 35}</td>`;
-                html += `<td class="category-score">${row.scoreNegociation}/${getMaxScore('NÃ©gociation prix')}</td>`;
+                html += `<td class="category-score">${row.scoreNegociation}/${getMaxScore('Négociation prix')}</td>`;
                 html += `<td class="category-score">${row.scoreLoi}/${getMaxScore('Loi')}</td>`;
                 html += `<td class="category-score">${row.scorePsychologie}/${getMaxScore('Psychologie vendeur/acheteur')}</td>`;
                 html += '</tr>';
@@ -526,7 +545,7 @@
         }
 
         function getMaxScore(category) {
-            if (category === 'NÃ©gociation prix') return 12;
+            if (category === 'Négociation prix') return 12;
             if (category === 'Loi') return 9;
             return 9;
         }
@@ -553,11 +572,11 @@
 
         function exportCSV() {
             if (allData.length === 0) {
-                alert('Aucune donnÃ©e Ã  exporter');
+                alert('Aucune donnée à exporter');
                 return;
             }
 
-            let csv = 'Date,PrÃ©nom,Email,Score,NÃ©gociation,Loi,Psychologie\n';
+            let csv = 'Date,Prénom,Email,Score,Négociation,Loi,Psychologie\n';
 
             allData.forEach(row => {
                 const date = new Date(row.timestamp).toLocaleDateString('fr-FR', {
@@ -568,7 +587,7 @@
                     minute: '2-digit'
                 });
 
-                csv += `"${date}","${row.firstName || ''}","${row.email || ''}",${row.score || 0},${row.scoreNegociation || 0}/${getMaxScore('NÃ©gociation prix')},${row.scoreLoi || 0}/${getMaxScore('Loi')},${row.scorePsychologie || 0}/${getMaxScore('Psychologie vendeur/acheteur')}\n`;
+                csv += `"${date}","${row.firstName || ''}","${row.email || ''}",${row.score || 0},${row.scoreNegociation || 0}/${getMaxScore('Négociation prix')},${row.scoreLoi || 0}/${getMaxScore('Loi')},${row.scorePsychologie || 0}/${getMaxScore('Psychologie vendeur/acheteur')}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
