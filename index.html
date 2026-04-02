@@ -700,6 +700,55 @@
             color: var(--white);
         }
 
+        /* Radar Chart */
+        .radar-container {
+            background: linear-gradient(145deg, var(--bg-card), var(--bg-primary));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px 20px 20px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        .radar-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.3rem;
+            color: var(--white);
+            margin-bottom: 16px;
+        }
+        .radar-svg {
+            width: 100%;
+            max-width: 420px;
+            height: auto;
+        }
+        .radar-grid-line {
+            fill: none;
+            stroke: rgba(255,255,255,0.08);
+            stroke-width: 1;
+        }
+        .radar-axis {
+            stroke: rgba(255,255,255,0.12);
+            stroke-width: 1;
+        }
+        .radar-label {
+            fill: rgba(255,255,255,0.7);
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            text-anchor: middle;
+        }
+        .radar-dot {
+            fill: #818cf8;
+            stroke: #fff;
+            stroke-width: 2;
+            filter: drop-shadow(0 0 6px rgba(129,140,248,0.6));
+        }
+        .radar-pct {
+            fill: #22d3ee;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            text-anchor: middle;
+        }
+
         /* CTA Section */
         .results-cta {
             background: linear-gradient(145deg, var(--bg-card), var(--bg-primary));
@@ -984,6 +1033,30 @@
                 </div>
             </div>
 
+            <div class="radar-container">
+                <h3 class="radar-title">Votre profil en un coup d'œil</h3>
+                <svg id="radarChart" viewBox="0 0 400 380" class="radar-svg">
+                    <defs>
+                        <linearGradient id="radarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1;stop-opacity:0.35"/>
+                            <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0.35"/>
+                        </linearGradient>
+                        <linearGradient id="radarStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#818cf8"/>
+                            <stop offset="100%" style="stop-color:#22d3ee"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Grid levels drawn by JS -->
+                    <g id="radarGrid"></g>
+                    <!-- Data polygon -->
+                    <polygon id="radarData" fill="url(#radarGrad)" stroke="url(#radarStroke)" stroke-width="2.5" opacity="0"/>
+                    <!-- Data points -->
+                    <g id="radarDots"></g>
+                    <!-- Labels -->
+                    <g id="radarLabels"></g>
+                </svg>
+            </div>
+
             <div class="results-cta" id="ctaSection"></div>
 
             <div class="share-section">
@@ -1147,6 +1220,9 @@
             document.getElementById('scorePosture').textContent = scores.posture + '/' + totals.posture;
             document.getElementById('scoreRisque').textContent = scores.risque + '/' + totals.risque;
 
+            // Draw radar chart
+            drawRadar(scores, totals);
+
             // Animate ring
             const pct = total / TOTAL_QUESTIONS;
             const circumference = 2 * Math.PI * 90;
@@ -1216,6 +1292,79 @@
             document.getElementById('ctaSection').innerHTML = cta;
 
             submitResults(total, scores.nego, scores.juridique, scores.lecture);
+        }
+
+        function drawRadar(scores, totals) {
+            const cats = [
+                {key:'posture', label:'Posture', color:'#f87171'},
+                {key:'nego', label:'Négociation', color:'#fbbf24'},
+                {key:'juridique', label:'Juridique', color:'#a78bfa'},
+                {key:'analyse', label:'Analyse', color:'#34d399'},
+                {key:'lecture', label:'Lecture\nhumaine', color:'#22d3ee'},
+                {key:'risque', label:'Risque &\ntechnique', color:'#fb923c'}
+            ];
+            const n = cats.length;
+            const cx = 200, cy = 185, maxR = 130;
+            const levels = 5;
+            const angleStep = (2 * Math.PI) / n;
+            const startAngle = -Math.PI / 2;
+
+            // Draw grid
+            let gridHTML = '';
+            for (let lv = 1; lv <= levels; lv++) {
+                const r = (maxR / levels) * lv;
+                let pts = [];
+                for (let i = 0; i < n; i++) {
+                    const a = startAngle + i * angleStep;
+                    pts.push((cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1));
+                }
+                gridHTML += '<polygon points="' + pts.join(' ') + '" class="radar-grid-line"/>';
+            }
+            // Axes
+            for (let i = 0; i < n; i++) {
+                const a = startAngle + i * angleStep;
+                const x2 = cx + maxR * Math.cos(a);
+                const y2 = cy + maxR * Math.sin(a);
+                gridHTML += '<line x1="'+cx+'" y1="'+cy+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" class="radar-axis"/>';
+            }
+            document.getElementById('radarGrid').innerHTML = gridHTML;
+
+            // Calculate data points
+            const values = cats.map(c => totals[c.key] > 0 ? scores[c.key] / totals[c.key] : 0);
+            let dataPts = [], dotHTML = '', labelHTML = '';
+            for (let i = 0; i < n; i++) {
+                const a = startAngle + i * angleStep;
+                const r = values[i] * maxR;
+                const x = cx + r * Math.cos(a);
+                const y = cy + r * Math.sin(a);
+                dataPts.push(x.toFixed(1) + ',' + y.toFixed(1));
+                dotHTML += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5" class="radar-dot"/>';
+
+                // Labels
+                const lr = maxR + 28;
+                const lx = cx + lr * Math.cos(a);
+                const ly = cy + lr * Math.sin(a);
+                const pctVal = Math.round(values[i] * 100);
+                const lines = cats[i].label.split('\n');
+                let labelY = ly - (lines.length - 1) * 6;
+                let labelStr = '';
+                lines.forEach((line, li) => {
+                    labelStr += '<tspan x="'+lx.toFixed(1)+'" dy="'+(li === 0 ? '0' : '13')+'">'+line+'</tspan>';
+                });
+                labelHTML += '<text class="radar-label" x="'+lx.toFixed(1)+'" y="'+labelY.toFixed(1)+'">'+labelStr+'</text>';
+                labelHTML += '<text class="radar-pct" x="'+lx.toFixed(1)+'" y="'+(ly + lines.length * 7 + 8).toFixed(1)+'">'+pctVal+'%</text>';
+            }
+
+            const dataEl = document.getElementById('radarData');
+            dataEl.setAttribute('points', dataPts.join(' '));
+            document.getElementById('radarDots').innerHTML = dotHTML;
+            document.getElementById('radarLabels').innerHTML = labelHTML;
+
+            // Animate radar appearance
+            setTimeout(() => {
+                dataEl.style.transition = 'opacity 0.8s ease';
+                dataEl.style.opacity = '1';
+            }, 500);
         }
 
         function submitResults(total, negociation, loi, psychologie) {
