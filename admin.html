@@ -139,8 +139,9 @@
             <div class="login-card">
                 <div style="font-size:40px;margin-bottom:20px">🔐</div>
                 <h2>Admin Dashboard</h2>
-                <p>Accès réservé à Coach Daniel</p>
-                <input type="password" class="login-input" id="password" placeholder="Mot de passe" onkeypress="if(event.key==='Enter')login()">
+                <p>Connectez-vous avec votre email et mot de passe</p>
+                <input type="email" class="login-input" id="loginEmail" placeholder="Email" onkeypress="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
+                <input type="password" class="login-input" id="loginPassword" placeholder="Mot de passe" onkeypress="if(event.key==='Enter')login()">
                 <button class="login-btn" onclick="login()">Se connecter</button>
                 <div class="login-error" id="loginError"></div>
             </div>
@@ -257,36 +258,45 @@
 
     <script>
         const ADMIN_PASSWORD = 'CoachDaniel2026!';
-        const API_URL = 'https://cbfypewsudbcuslhpkzx.supabase.co/functions/v1/qcm-api?admin=CoachDaniel2026!';
+        const ADMIN_EMAIL = 'contact@ibsformation.com';
+        const BASE_URL = 'https://cbfypewsudbcuslhpkzx.supabase.co/functions/v1/qcm-api';
+        const API_URL = BASE_URL + '?admin=CoachDaniel2026!';
         let allData = [];
         let sortConfig = { key: null, direction: 'asc' };
         let editableQuestions = [];
         let currentRole = 'admin';
+        let currentUserName = 'Admin';
 
-        // ===== SUB-ADMIN SYSTEM =====
-        function getSubAdmins() {
-            return JSON.parse(localStorage.getItem('qcm_subadmins') || '[]');
-        }
-        function saveSubAdmins(list) {
-            localStorage.setItem('qcm_subadmins', JSON.stringify(list));
-        }
-
-        function login() {
-            const pwd = document.getElementById('password').value;
-            if (pwd === ADMIN_PASSWORD) {
-                currentRole = 'admin';
-                openDashboard();
-            } else {
-                const subs = getSubAdmins();
-                const found = subs.find(s => s.password === pwd);
-                // Also try email+password combo if not found by password alone
-                // (password alone should still work for backwards compat)
-                if (found) {
-                    currentRole = found.role;
+        // ===== LOGIN via API =====
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pwd = document.getElementById('loginPassword').value.trim();
+            const errEl = document.getElementById('loginError');
+            errEl.textContent = '';
+            if (!email || !pwd) {
+                errEl.textContent = 'Remplis l\'email et le mot de passe';
+                return;
+            }
+            try {
+                const res = await fetch(BASE_URL + '?action=login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email, password: pwd })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentRole = data.role;
+                    currentUserName = data.name;
+                    sessionStorage.setItem('qcm_admin_role', currentRole);
+                    sessionStorage.setItem('qcm_admin_name', currentUserName);
+                    sessionStorage.setItem('qcm_admin_email', email);
+                    sessionStorage.setItem('qcm_admin_pwd', pwd);
                     openDashboard();
                 } else {
-                    document.getElementById('loginError').textContent = 'Mot de passe incorrect';
+                    errEl.textContent = data.error || 'Email ou mot de passe incorrect';
                 }
+            } catch (e) {
+                errEl.textContent = 'Erreur de connexion au serveur';
             }
         }
         function openDashboard() {
@@ -323,11 +333,15 @@
             }
         }
         function logout() {
-            document.getElementById('password').value = '';
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
             document.getElementById('loginError').textContent = '';
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('loginSection').style.display = 'flex';
             sessionStorage.removeItem('qcm_admin_role');
+            sessionStorage.removeItem('qcm_admin_name');
+            sessionStorage.removeItem('qcm_admin_email');
+            sessionStorage.removeItem('qcm_admin_pwd');
             currentRole = 'admin';
         }
 
@@ -339,54 +353,78 @@
             document.getElementById('resultsTab').style.display = tab === 'results' ? 'block' : 'none';
             document.getElementById('questionsTab').style.display = tab === 'questions' ? 'block' : 'none';
             document.getElementById('subadminTab').style.display = tab === 'subadmin' ? 'block' : 'none';
-            if (tab === 'subadmin') renderSubAdmins();
+            if (tab === 'subadmin') loadSubAdmins();
         }
 
-        // ===== SUBADMIN MANAGEMENT =====
-        function addSubAdmin() {
+        // ===== SUBADMIN MANAGEMENT (via Supabase) =====
+        async function addSubAdmin() {
             if (currentRole !== 'admin') return;
             const name = document.getElementById('newSubName').value.trim();
             const email = document.getElementById('newSubEmail').value.trim();
             const pass = document.getElementById('newSubPass').value.trim();
             const role = document.getElementById('newSubRole').value;
-            if (!name || !pass) return alert('Remplis le nom et le mot de passe');
-            if (pass === ADMIN_PASSWORD) return alert('Ce mot de passe est réservé à l\'admin principal');
-            const subs = getSubAdmins();
-            if (subs.find(s => s.password === pass)) return alert('Ce mot de passe est déjà utilisé');
-            subs.push({ name, email: email || '', password: pass, role, createdAt: new Date().toISOString() });
-            saveSubAdmins(subs);
-            document.getElementById('newSubName').value = '';
-            document.getElementById('newSubEmail').value = '';
-            document.getElementById('newSubPass').value = '';
-            renderSubAdmins();
+            if (!name || !email || !pass) return alert('Remplis le nom, l\'email et le mot de passe');
+            if (email === ADMIN_EMAIL) return alert('Cet email est réservé à l\'admin principal');
+            try {
+                const res = await fetch(BASE_URL + '?action=add-subadmin', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ admin: ADMIN_PASSWORD, name, email, password: pass, role })
+                });
+                const data = await res.json();
+                if (data.error) return alert(data.error);
+                document.getElementById('newSubName').value = '';
+                document.getElementById('newSubEmail').value = '';
+                document.getElementById('newSubPass').value = '';
+                alert('✅ Sous-admin "' + name + '" créé !\n\nIl peut se connecter avec :\nEmail : ' + email + '\nMot de passe : ' + pass);
+                loadSubAdmins();
+            } catch (e) {
+                alert('Erreur serveur');
+            }
         }
-        function removeSubAdmin(idx) {
+        async function removeSubAdmin(id) {
             if (currentRole !== 'admin') return;
             if (!confirm('Supprimer ce sous-admin ?')) return;
-            const subs = getSubAdmins();
-            subs.splice(idx, 1);
-            saveSubAdmins(subs);
-            renderSubAdmins();
+            try {
+                await fetch(BASE_URL + '?action=delete-subadmin', {
+                    method: 'DELETE',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ admin: ADMIN_PASSWORD, id: id })
+                });
+                loadSubAdmins();
+            } catch (e) {
+                alert('Erreur serveur');
+            }
         }
-        function renderSubAdmins() {
+        async function loadSubAdmins() {
             const container = document.getElementById('subadminList');
-            const subs = getSubAdmins();
-            if (!subs.length) {
+            container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim)">Chargement...</div>';
+            try {
+                const res = await fetch(BASE_URL + '?action=subadmins&admin=' + encodeURIComponent(ADMIN_PASSWORD));
+                const data = await res.json();
+                const subs = data.subadmins || [];
+                renderSubAdmins(subs);
+            } catch (e) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--danger)">Erreur de chargement</div>';
+            }
+        }
+        function renderSubAdmins(subs) {
+            const container = document.getElementById('subadminList');
+            if (!subs || !subs.length) {
                 container.innerHTML = '<div class="no-subadmins">Aucun sous-admin pour le moment. Ajoutez-en un ci-dessus.</div>';
                 return;
             }
-            container.innerHTML = subs.map((s, i) => {
+            container.innerHTML = subs.map((s) => {
                 const initials = s.name.substring(0,2).toUpperCase();
                 const roleLabel = s.role === 'editor' ? '✏️ Éditeur' : '👁 Lecture seule';
                 const roleClass = s.role === 'editor' ? 'editor' : 'viewer';
-                const date = s.createdAt ? new Date(s.createdAt).toLocaleDateString('fr-FR') : '';
+                const date = s.created_at ? new Date(s.created_at).toLocaleDateString('fr-FR') : '';
                 return '<div class="subadmin-card">'
                     + '<div class="subadmin-info"><div class="subadmin-avatar">' + initials + '</div>'
-                    + '<div><div class="subadmin-name">' + s.name + (s.email ? ' <span style="color:var(--text-dim);font-weight:400">(' + s.email + ')</span>' : '') + '</div><div style="font-size:11px;color:var(--text-dim)">Ajouté le ' + date + '</div></div></div>'
+                    + '<div><div class="subadmin-name">' + s.name + ' <span style="color:var(--text-dim);font-weight:400">(' + s.email + ')</span></div><div style="font-size:11px;color:var(--text-dim)">Ajouté le ' + date + '</div></div></div>'
                     + '<div style="display:flex;align-items:center;gap:10px">'
                     + '<span class="subadmin-role ' + roleClass + '">' + roleLabel + '</span>'
-                    + '<span style="font-size:11px;color:var(--text-dim);font-family:monospace">MDP: ' + s.password.substring(0,3) + '***</span>'
-                    + '<button class="subadmin-btn danger" onclick="removeSubAdmin(' + i + ')">🗑 Supprimer</button>'
+                    + '<button class="subadmin-btn danger" onclick="removeSubAdmin(\'' + s.id + '\')">🗑 Supprimer</button>'
                     + '</div></div>';
             }).join('');
         }
@@ -629,8 +667,10 @@
         // ===== AUTO-RESTORE SESSION =====
         (function() {
             const savedRole = sessionStorage.getItem('qcm_admin_role');
+            const savedName = sessionStorage.getItem('qcm_admin_name');
             if (savedRole) {
                 currentRole = savedRole;
+                currentUserName = savedName || 'Admin';
                 openDashboard();
             }
         })();
