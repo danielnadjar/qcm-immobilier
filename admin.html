@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - lesite.io QCM</title>
+    <title>Admin Dashboard - Coach Daniel NADJAR</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -102,6 +102,26 @@
             .tabs { flex-wrap:wrap; }
         }
 
+
+        /* Subadmin */
+        .subadmin-card {
+            display:flex; justify-content:space-between; align-items:center; padding:16px 20px;
+            background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; margin-bottom:10px;
+            flex-wrap:wrap; gap:10px;
+        }
+        .subadmin-info { display:flex; align-items:center; gap:12px; }
+        .subadmin-avatar { width:36px; height:36px; border-radius:50%; background:var(--accent-subtle); display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--accent-light); font-size:14px; }
+        .subadmin-name { font-weight:600; color:var(--white); font-size:14px; }
+        .subadmin-role { font-size:12px; padding:4px 10px; border-radius:20px; font-weight:500; }
+        .subadmin-role.viewer { background:rgba(6,182,212,0.15); color:#22d3ee; }
+        .subadmin-role.editor { background:rgba(245,158,11,0.15); color:#fbbf24; }
+        .subadmin-role.admin { background:rgba(239,68,68,0.15); color:#f87171; }
+        .subadmin-actions { display:flex; gap:8px; }
+        .subadmin-btn { padding:6px 14px; border-radius:8px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-muted); font-size:12px; cursor:pointer; font-family:'Inter',sans-serif; }
+        .subadmin-btn:hover { border-color:var(--accent); color:var(--white); }
+        .subadmin-btn.danger { border-color:rgba(239,68,68,0.3); }
+        .subadmin-btn.danger:hover { border-color:var(--danger); color:var(--danger); }
+        .no-subadmins { text-align:center; padding:30px; color:var(--text-dim); font-size:14px; }
         #dashboard { display:none; }
     </style>
 </head>
@@ -124,7 +144,7 @@
         <!-- DASHBOARD -->
         <div id="dashboard">
             <div class="header">
-                <div class="logo"><div class="logo-icon">🏠</div> lesite.io Admin</div>
+                <div class="logo"><div class="logo-icon">🏠</div> Daniel NADJAR - Le négociateur | Admin</div>
                 <div class="header-actions">
                     <a href="index.html" class="header-btn">← Retour au QCM</a>
                     <button class="header-btn" onclick="logout()">Déconnexion</button>
@@ -134,6 +154,7 @@
             <div class="tabs">
                 <div class="tab active" onclick="switchTab('results')">📊 Résultats</div>
                 <div class="tab" onclick="switchTab('questions')">✏️ Éditer les questions</div>
+                <div class="tab" id="tabSubadmin" onclick="switchTab('subadmin')">👥 Sous-admins</div>
             </div>
 
             <!-- RESULTS TAB -->
@@ -183,6 +204,42 @@
                     </div>
                 </div>
                 <div id="questionsEditor"></div>
+
+            <!-- SUBADMIN TAB -->
+            <div id="subadminTab" style="display:none">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+                    <h3 style="font-family:'Space Grotesk',sans-serif;color:var(--white)">Gestion des sous-admins</h3>
+                    <div style="display:flex;gap:10px;align-items:center">
+                        <span id="roleIndicator" style="font-size:12px;padding:6px 14px;border-radius:20px;font-weight:600"></span>
+                    </div>
+                </div>
+
+                <div class="table-card" style="margin-bottom:20px">
+                    <h4 style="color:var(--white);margin-bottom:16px;font-family:'Space Grotesk',sans-serif">Ajouter un sous-admin</h4>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+                        <div style="flex:1;min-width:160px">
+                            <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px">Nom</label>
+                            <input type="text" class="login-input" id="newSubName" placeholder="Ex: Marie" style="margin:0">
+                        </div>
+                        <div style="flex:1;min-width:200px">
+                            <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px">Mot de passe</label>
+                            <input type="text" class="login-input" id="newSubPass" placeholder="Mot de passe" style="margin:0">
+                        </div>
+                        <div style="min-width:180px">
+                            <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px">Permissions</label>
+                            <select class="login-input" id="newSubRole" style="margin:0;cursor:pointer">
+                                <option value="viewer">👁 Lecture seule</option>
+                                <option value="editor">✏️ Éditeur (questions)</option>
+                            </select>
+                        </div>
+                        <button class="login-btn" style="width:auto;padding:14px 24px;white-space:nowrap" onclick="addSubAdmin()">+ Ajouter</button>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <h4 style="color:var(--white);margin-bottom:16px;font-family:'Space Grotesk',sans-serif">Sous-admins actuels</h4>
+                    <div id="subadminList"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -193,15 +250,62 @@
         let allData = [];
         let sortConfig = { key: null, direction: 'asc' };
         let editableQuestions = [];
+        let currentRole = 'admin';
+
+        // ===== SUB-ADMIN SYSTEM =====
+        function getSubAdmins() {
+            return JSON.parse(localStorage.getItem('qcm_subadmins') || '[]');
+        }
+        function saveSubAdmins(list) {
+            localStorage.setItem('qcm_subadmins', JSON.stringify(list));
+        }
 
         function login() {
-            if (document.getElementById('password').value === ADMIN_PASSWORD) {
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-                loadData();
-                loadQuestionsForEditor();
+            const pwd = document.getElementById('password').value;
+            if (pwd === ADMIN_PASSWORD) {
+                currentRole = 'admin';
+                openDashboard();
             } else {
-                document.getElementById('loginError').textContent = 'Mot de passe incorrect';
+                const subs = getSubAdmins();
+                const found = subs.find(s => s.password === pwd);
+                if (found) {
+                    currentRole = found.role;
+                    openDashboard();
+                } else {
+                    document.getElementById('loginError').textContent = 'Mot de passe incorrect';
+                }
+            }
+        }
+        function openDashboard() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            applyRolePermissions();
+            loadData();
+            loadQuestionsForEditor();
+        }
+        function applyRolePermissions() {
+            const tabSub = document.getElementById('tabSubadmin');
+            if (currentRole === 'admin') {
+                tabSub.style.display = '';
+                document.getElementById('roleIndicator').textContent = '👑 Admin principal';
+                document.getElementById('roleIndicator').style.background = 'rgba(239,68,68,0.15)';
+                document.getElementById('roleIndicator').style.color = '#f87171';
+            } else if (currentRole === 'editor') {
+                tabSub.style.display = 'none';
+                document.getElementById('roleIndicator').textContent = '✏️ Éditeur';
+                document.getElementById('roleIndicator').style.background = 'rgba(245,158,11,0.15)';
+                document.getElementById('roleIndicator').style.color = '#fbbf24';
+            } else {
+                tabSub.style.display = 'none';
+                document.getElementById('roleIndicator').textContent = '👁 Lecture seule';
+                document.getElementById('roleIndicator').style.background = 'rgba(6,182,212,0.15)';
+                document.getElementById('roleIndicator').style.color = '#22d3ee';
+            }
+            // Viewer: hide questions tab and export
+            if (currentRole === 'viewer') {
+                document.querySelectorAll('.tab')[1].style.display = 'none';
+            } else {
+                document.querySelectorAll('.tab')[1].style.display = '';
             }
         }
         function logout() {
@@ -209,12 +313,65 @@
             document.getElementById('loginError').textContent = '';
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('loginSection').style.display = 'flex';
+            currentRole = 'admin';
         }
 
         function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (tab==='results'?i===0:i===1)));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            if (tab === 'results') document.querySelectorAll('.tab')[0].classList.add('active');
+            else if (tab === 'questions') document.querySelectorAll('.tab')[1].classList.add('active');
+            else if (tab === 'subadmin') document.querySelectorAll('.tab')[2].classList.add('active');
             document.getElementById('resultsTab').style.display = tab === 'results' ? 'block' : 'none';
             document.getElementById('questionsTab').style.display = tab === 'questions' ? 'block' : 'none';
+            document.getElementById('subadminTab').style.display = tab === 'subadmin' ? 'block' : 'none';
+            if (tab === 'subadmin') renderSubAdmins();
+        }
+
+        // ===== SUBADMIN MANAGEMENT =====
+        function addSubAdmin() {
+            if (currentRole !== 'admin') return;
+            const name = document.getElementById('newSubName').value.trim();
+            const pass = document.getElementById('newSubPass').value.trim();
+            const role = document.getElementById('newSubRole').value;
+            if (!name || !pass) return alert('Remplis le nom et le mot de passe');
+            if (pass === ADMIN_PASSWORD) return alert('Ce mot de passe est réservé à l\'admin principal');
+            const subs = getSubAdmins();
+            if (subs.find(s => s.password === pass)) return alert('Ce mot de passe est déjà utilisé');
+            subs.push({ name, password: pass, role, createdAt: new Date().toISOString() });
+            saveSubAdmins(subs);
+            document.getElementById('newSubName').value = '';
+            document.getElementById('newSubPass').value = '';
+            renderSubAdmins();
+        }
+        function removeSubAdmin(idx) {
+            if (currentRole !== 'admin') return;
+            if (!confirm('Supprimer ce sous-admin ?')) return;
+            const subs = getSubAdmins();
+            subs.splice(idx, 1);
+            saveSubAdmins(subs);
+            renderSubAdmins();
+        }
+        function renderSubAdmins() {
+            const container = document.getElementById('subadminList');
+            const subs = getSubAdmins();
+            if (!subs.length) {
+                container.innerHTML = '<div class="no-subadmins">Aucun sous-admin pour le moment. Ajoutez-en un ci-dessus.</div>';
+                return;
+            }
+            container.innerHTML = subs.map((s, i) => {
+                const initials = s.name.substring(0,2).toUpperCase();
+                const roleLabel = s.role === 'editor' ? '✏️ Éditeur' : '👁 Lecture seule';
+                const roleClass = s.role === 'editor' ? 'editor' : 'viewer';
+                const date = s.createdAt ? new Date(s.createdAt).toLocaleDateString('fr-FR') : '';
+                return '<div class="subadmin-card">'
+                    + '<div class="subadmin-info"><div class="subadmin-avatar">' + initials + '</div>'
+                    + '<div><div class="subadmin-name">' + s.name + '</div><div style="font-size:11px;color:var(--text-dim)">Ajouté le ' + date + '</div></div></div>'
+                    + '<div style="display:flex;align-items:center;gap:10px">'
+                    + '<span class="subadmin-role ' + roleClass + '">' + roleLabel + '</span>'
+                    + '<span style="font-size:11px;color:var(--text-dim);font-family:monospace">MDP: ' + s.password.substring(0,3) + '***</span>'
+                    + '<button class="subadmin-btn danger" onclick="removeSubAdmin(' + i + ')">🗑 Supprimer</button>'
+                    + '</div></div>';
+            }).join('');
         }
 
         // ===== RESULTS =====
