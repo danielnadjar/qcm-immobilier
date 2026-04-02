@@ -149,14 +149,46 @@
             box-shadow: 0 4px 15px var(--accent-glow);
         }
         .admin-link {
-            color: var(--text-dim);
-            text-decoration: none;
-            font-size: 11px;
-            opacity: 0.3;
-            transition: opacity 0.3s;
-            padding: 8px;
+            display: none;
         }
-        .admin-link:hover { opacity: 0.8; }
+        .admin-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(15,31,58,0.85);
+            border: 1px solid rgba(59,130,246,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            opacity: 0.25;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+        }
+        .admin-float:hover {
+            opacity: 1;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(59,130,246,0.3);
+            transform: scale(1.1);
+        }
+        .admin-float svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: var(--text-dim);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke 0.3s;
+        }
+        .admin-float:hover svg {
+            stroke: var(--accent-light);
+        }
 
         /* ===== ANIMATIONS ===== */
         @keyframes fadeInDown {
@@ -1689,5 +1721,8 @@
         }
         function copyLink() { navigator.clipboard.writeText(window.location.href).then(() => alert('Lien copié !')); }
     </script>
+    <a href="admin.html" class="admin-float" title="Admin">
+        <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+    </a>
 </body>
 </html>
