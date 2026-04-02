@@ -122,6 +122,11 @@
         .subadmin-btn.danger { border-color:rgba(239,68,68,0.3); }
         .subadmin-btn.danger:hover { border-color:var(--danger); color:var(--danger); }
         .no-subadmins { text-align:center; padding:30px; color:var(--text-dim); font-size:14px; }
+
+        table input[type="checkbox"] {
+            width: 16px; height: 16px; cursor: pointer;
+            accent-color: var(--accent);
+        }
         #dashboard { display:none; }
     </style>
 </head>
@@ -187,6 +192,7 @@
                         <h3>Résultats des participants</h3>
                         <div class="table-actions">
                             <input type="text" class="search-input" id="searchInput" placeholder="Rechercher..." oninput="filterTable()">
+                            <button class="export-btn" id="deleteSelectedBtn" onclick="deleteSelected()" style="display:none;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.3);color:#f87171">🗑 Supprimer la sélection</button>
                             <button class="export-btn" onclick="exportCSV()">📥 CSV</button>
                         </div>
                     </div>
@@ -204,6 +210,7 @@
                     </div>
                 </div>
                 <div id="questionsEditor"></div>
+            </div>
 
             <!-- SUBADMIN TAB -->
             <div id="subadminTab" style="display:none">
@@ -279,6 +286,7 @@
         function openDashboard() {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
+            sessionStorage.setItem('qcm_admin_role', currentRole);
             applyRolePermissions();
             loadData();
             loadQuestionsForEditor();
@@ -313,6 +321,7 @@
             document.getElementById('loginError').textContent = '';
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('loginSection').style.display = 'flex';
+            sessionStorage.removeItem('qcm_admin_role');
             currentRole = 'admin';
         }
 
@@ -427,6 +436,52 @@
             });
             html += '</tbody></table>';
             document.getElementById('tableContent').innerHTML = html;
+        }
+
+
+        function toggleAllCheckboxes(checked) {
+            document.querySelectorAll('.row-check').forEach(cb => cb.checked = checked);
+            updateDeleteBtn();
+        }
+        function updateDeleteBtn() {
+            const count = document.querySelectorAll('.row-check:checked').length;
+            const btn = document.getElementById('deleteSelectedBtn');
+            if (count > 0) {
+                btn.style.display = '';
+                btn.textContent = '🗑 Supprimer (' + count + ')';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+        function deleteSelected() {
+            if (currentRole === 'viewer') return alert('Accès refusé');
+            const checked = document.querySelectorAll('.row-check:checked');
+            const count = checked.length;
+            if (!count) return;
+            if (!confirm('Supprimer ' + count + ' résultat(s) ? Cette action est irréversible.')) return;
+            
+            // Get indices to delete (sorted descending to avoid index shift)
+            const indices = [];
+            checked.forEach(cb => indices.push(parseInt(cb.dataset.idx)));
+            indices.sort((a,b) => b - a);
+            
+            // Also try to delete from Supabase if they have IDs
+            const ids = [];
+            checked.forEach(cb => { if (cb.dataset.id && cb.dataset.id !== cb.dataset.idx) ids.push(cb.dataset.id); });
+            
+            // Delete from Supabase via API
+            if (ids.length > 0) {
+                fetch('https://cbfypewsudbcuslhpkzx.supabase.co/functions/v1/qcm-api', {
+                    method: 'DELETE',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({admin: ADMIN_PASSWORD, ids: ids})
+                }).catch(e => console.log('Delete API:', e));
+            }
+            
+            // Remove from local data
+            indices.forEach(i => { if (i >= 0 && i < allData.length) allData.splice(i, 1); });
+            updateStats();
+            renderTable();
         }
 
         function sortTable(key) {
@@ -561,6 +616,15 @@
             };
             reader.readAsText(file);
         }
+
+        // ===== AUTO-RESTORE SESSION =====
+        (function() {
+            const savedRole = sessionStorage.getItem('qcm_admin_role');
+            if (savedRole) {
+                currentRole = savedRole;
+                openDashboard();
+            }
+        })();
     </script>
 </body>
 </html>
