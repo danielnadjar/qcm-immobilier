@@ -224,11 +224,15 @@
                 <div class="table-card" style="margin-bottom:20px">
                     <h4 style="color:var(--white);margin-bottom:16px;font-family:'Space Grotesk',sans-serif">Ajouter un sous-admin</h4>
                     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
-                        <div style="flex:1;min-width:160px">
+                        <div style="flex:1;min-width:140px">
                             <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px">Nom</label>
                             <input type="text" class="login-input" id="newSubName" placeholder="Ex: Marie" style="margin:0">
                         </div>
                         <div style="flex:1;min-width:200px">
+                            <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px">Email</label>
+                            <input type="email" class="login-input" id="newSubEmail" placeholder="email@exemple.com" style="margin:0">
+                        </div>
+                        <div style="flex:1;min-width:160px">
                             <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px">Mot de passe</label>
                             <input type="text" class="login-input" id="newSubPass" placeholder="Mot de passe" style="margin:0">
                         </div>
@@ -275,6 +279,8 @@
             } else {
                 const subs = getSubAdmins();
                 const found = subs.find(s => s.password === pwd);
+                // Also try email+password combo if not found by password alone
+                // (password alone should still work for backwards compat)
                 if (found) {
                     currentRole = found.role;
                     openDashboard();
@@ -340,15 +346,17 @@
         function addSubAdmin() {
             if (currentRole !== 'admin') return;
             const name = document.getElementById('newSubName').value.trim();
+            const email = document.getElementById('newSubEmail').value.trim();
             const pass = document.getElementById('newSubPass').value.trim();
             const role = document.getElementById('newSubRole').value;
             if (!name || !pass) return alert('Remplis le nom et le mot de passe');
             if (pass === ADMIN_PASSWORD) return alert('Ce mot de passe est réservé à l\'admin principal');
             const subs = getSubAdmins();
             if (subs.find(s => s.password === pass)) return alert('Ce mot de passe est déjà utilisé');
-            subs.push({ name, password: pass, role, createdAt: new Date().toISOString() });
+            subs.push({ name, email: email || '', password: pass, role, createdAt: new Date().toISOString() });
             saveSubAdmins(subs);
             document.getElementById('newSubName').value = '';
+            document.getElementById('newSubEmail').value = '';
             document.getElementById('newSubPass').value = '';
             renderSubAdmins();
         }
@@ -374,7 +382,7 @@
                 const date = s.createdAt ? new Date(s.createdAt).toLocaleDateString('fr-FR') : '';
                 return '<div class="subadmin-card">'
                     + '<div class="subadmin-info"><div class="subadmin-avatar">' + initials + '</div>'
-                    + '<div><div class="subadmin-name">' + s.name + '</div><div style="font-size:11px;color:var(--text-dim)">Ajouté le ' + date + '</div></div></div>'
+                    + '<div><div class="subadmin-name">' + s.name + (s.email ? ' <span style="color:var(--text-dim);font-weight:400">(' + s.email + ')</span>' : '') + '</div><div style="font-size:11px;color:var(--text-dim)">Ajouté le ' + date + '</div></div></div>'
                     + '<div style="display:flex;align-items:center;gap:10px">'
                     + '<span class="subadmin-role ' + roleClass + '">' + roleLabel + '</span>'
                     + '<span style="font-size:11px;color:var(--text-dim);font-family:monospace">MDP: ' + s.password.substring(0,3) + '***</span>'
@@ -422,17 +430,18 @@
         }
 
         function renderTable() {
-            if (!allData.length) { document.getElementById('tableContent').innerHTML = '<div class="no-data">Aucune donnée</div>'; return; }
-            let html = '<table><thead><tr><th onclick="sortTable(\'created_at\')">Date</th><th onclick="sortTable(\'prenom\')">Prénom</th><th onclick="sortTable(\'email\')">Email</th><th onclick="sortTable(\'score\')">Score</th><th>Négo</th><th>Loi</th><th>Psy</th></tr></thead><tbody>';
+            if (!allData.length) { document.getElementById('tableContent').innerHTML = '<div class="no-data">Aucune donnée</div>'; document.getElementById('deleteSelectedBtn').style.display='none'; return; }
+            let html = '<table><thead><tr><th style="width:40px"><input type="checkbox" onchange="toggleAllCheckboxes(this.checked)" title="Tout sélectionner"></th><th onclick="sortTable(\'created_at\')">Date</th><th onclick="sortTable(\'prenom\')">Prénom</th><th onclick="sortTable(\'email\')">Email</th><th onclick="sortTable(\'score\')">Score</th><th>Négo</th><th>Loi</th><th>Psy</th></tr></thead><tbody>';
             const sorted = [...allData].sort((a,b) => {
                 if (!sortConfig.key) return 0;
                 let av=a[sortConfig.key], bv=b[sortConfig.key];
                 if (typeof av==='string'){av=av.toLowerCase();bv=(bv||'').toLowerCase();}
                 return sortConfig.direction==='asc'?(av>bv?1:av<bv?-1:0):(av<bv?1:av>bv?-1:0);
             });
-            sorted.forEach(row => {
+            sorted.forEach((row, idx) => {
                 const d = new Date(row.created_at||row.timestamp).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-                html += '<tr><td>'+d+'</td><td>'+(row.prenom||row.firstName||'-')+'</td><td>'+(row.email||'-')+'</td><td style="color:var(--accent-light);font-weight:600">'+row.score+'/'+(row.total||35)+'</td><td>'+(row.score_negociation||0)+'</td><td>'+(row.score_loi||0)+'</td><td>'+(row.score_psychologie||0)+'</td></tr>';
+                const rowId = row.id || idx;
+                html += '<tr><td><input type="checkbox" class="row-check" data-idx="'+idx+'" data-id="'+rowId+'" onchange="updateDeleteBtn()"></td><td>'+d+'</td><td>'+(row.prenom||row.firstName||'-')+'</td><td>'+(row.email||'-')+'</td><td style="color:var(--accent-light);font-weight:600">'+row.score+'/'+(row.total||35)+'</td><td>'+(row.score_negociation||0)+'</td><td>'+(row.score_loi||0)+'</td><td>'+(row.score_psychologie||0)+'</td></tr>';
             });
             html += '</tbody></table>';
             document.getElementById('tableContent').innerHTML = html;
