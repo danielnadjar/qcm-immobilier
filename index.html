@@ -877,29 +877,31 @@
             transform: scale(1.03) rotate(-1deg);
         }
         .book-amazon-btn {
-            display: inline-block;
-            padding: 14px 28px;
-            background: linear-gradient(135deg, #ff9900, #e68a00);
-            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(145deg, #232f3e, #1a242f);
+            border-radius: 20px;
             text-decoration: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 15px;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.3s;
-            text-align: center;
-            width: 100%;
-            max-width: 260px;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.35), 0 2px 8px rgba(255,153,0,0.15), inset 0 1px 0 rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,153,0,0.2);
+            margin-top: 4px;
         }
         .amazon-logo-img {
-            height: 24px;
-            vertical-align: middle;
-            margin-right: 8px;
-            filter: brightness(10);
+            height: 36px;
+            filter: brightness(1.1);
+            transition: transform 0.3s ease;
         }
         .book-amazon-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255,153,0,0.4);
+            transform: translateY(-4px) scale(1.08);
+            box-shadow: 0 14px 40px rgba(0,0,0,0.4), 0 4px 20px rgba(255,153,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+            border-color: rgba(255,153,0,0.5);
+        }
+        .book-amazon-btn:hover .amazon-logo-img {
+            transform: scale(1.05);
         }
         .coach-cta-card {
             background: linear-gradient(145deg, var(--bg-card), var(--bg-primary));
@@ -1076,31 +1078,28 @@
             text-anchor: middle;
         }
 
-        /* CTA Section */
-        .results-cta {
-            background: linear-gradient(145deg, var(--bg-card), var(--bg-primary));
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
-            animation: fadeInUp 0.8s ease 1.4s both;
-            position: relative;
-            overflow: hidden;
+        /* CTA Big Title */
+        .cta-big-title {
+            text-align: center;
+            margin: 40px 0 24px;
+            animation: fadeInUp 0.8s ease 1.2s both;
         }
-        .results-cta::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--accent), #8b5cf6, var(--accent-light));
-        }
-
-        .cta-title {
+        .cta-big-title h2 {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 22px;
-            font-weight: 700;
+            font-size: 28px;
+            font-weight: 800;
             color: var(--white);
-            margin-bottom: 20px;
+            margin: 0 0 6px;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 50%, #22d3ee 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .cta-big-title .cta-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin: 0;
         }
         .cta-items {
             display: flex;
@@ -1313,6 +1312,14 @@
 
         <!-- RESULTS -->
         <div id="resultsContainer">
+            <div class="nego-elite-section">
+                <div class="nego-elite-card">
+                    <div class="nego-elite-icon">🏆</div>
+                    <h3 class="nego-elite-title">Besoin d'aide pour négocier ton bien ?</h3>
+                    <p class="nego-elite-text">On vous envoie un <strong>négociateur d'élite</strong> !</p>
+                    <a href="https://negociateur.lesite.online/" target="_blank" class="nego-elite-btn">🚀 Cliquez ici</a>
+                </div>
+            </div>
             <div class="results-hero">
                 <div class="score-ring-container">
                     <svg class="score-ring" viewBox="0 0 200 200">
@@ -1392,11 +1399,13 @@
                 </svg>
             </div>
 
+            <div class="cta-big-title" id="ctaTitleSection"></div>
+
             <div class="book-cta-section">
                 <div class="book-cta-grid">
                     <div class="book-cover-card">
                         <img class="book-cover-img" src="https://i.postimg.cc/D03TCKVB/Chat-GPT-Image-2-mars-2026-20-05-59.png" alt="Comment acheter un bien immobilier sans se faire enfumer">
-                        <a href="https://www.amazon.fr/COMMENT-ACHETER-IMMOBILIER-FAIRE-ENFUMER/dp/B0GR9WV86J/ref=tmm_pap_swatch_0" target="_blank" class="book-amazon-btn"><img src="https://i.postimg.cc/V6ny0Hrc/t-l-chargement-2.png" alt="Amazon" class="amazon-logo-img"> Commander sur Amazon</a>
+                        <a href="https://www.amazon.fr/COMMENT-ACHETER-IMMOBILIER-FAIRE-ENFUMER/dp/B0GR9WV86J/ref=tmm_pap_swatch_0" target="_blank" class="book-amazon-btn" title="Commander sur Amazon"><img src="https://i.postimg.cc/V6ny0Hrc/t-l-chargement-2.png" alt="Amazon Kindle" class="amazon-logo-img"></a>
                     </div>
                     <div class="coach-cta-card">
                         <div class="coach-cta-photo-wrap">
@@ -1408,15 +1417,6 @@
                     </div>
                 </div>
             </div>
-            <div class="nego-elite-section">
-                <div class="nego-elite-card">
-                    <div class="nego-elite-icon">🏆</div>
-                    <h3 class="nego-elite-title">Besoin d'aide pour négocier ton bien ?</h3>
-                    <p class="nego-elite-text">On vous envoie un <strong>négociateur d'élite</strong> !</p>
-                    <a href="https://negociateur.lesite.online/" target="_blank" class="nego-elite-btn">🚀 Cliquez ici</a>
-                </div>
-            </div>
-            <div class="results-cta" id="ctaSection"></div>
 
             <div class="share-section">
                 <button class="share-btn" onclick="shareLinkedIn()">LinkedIn</button>
@@ -1727,7 +1727,7 @@
                 + '<p>Votre <strong>Lecture humaine (' + scores.lecture + '/' + totals.lecture + ', soit ' + psyPct + '%)</strong> vous rend vulnérable aux techniques de manipulation basiques. « J’ai trois visites demain sur ce bien. » Mensonge. Vous ne repérez pas les signaux subtils — quand un vendeur évoque ses contraintes personnelles, c’est qu’il est prêt à céder. L’effet de possession le pousse à surestimer son bien, et vous tombez dans le panneau. Ces agents appliquent des techniques que j’ai documentées dans plus de 3 500 appels.</p>'
                 + '<p>En <strong>Risque & Technique (' + scores.risque + '/' + totals.risque + ', soit ' + risPct + '%)</strong>, vous ne posez pas les bonnes questions. L’état réel du bien, les problèmes structurels, l’humidité cachée, le DPE véritable, les charges de copropriété impayées — ces défauts vous coûteront 20 000, 50 000 euros APRÈS la signature. Et si un vendeur baisse en dessous de son prix d’achat, vous ne savez pas comment réagir.</p>'
                 + '<p><strong>Mon diagnostic brutal :</strong> Vous n’êtes pas prêt. Si vous achetez maintenant, vous allez surpayer, accepter des clauses défavorables, et découvrir des problèmes majeurs six mois après. La plupart de mes lecteurs à votre niveau économisent 30 000 à 60 000 euros sur leur première transaction simplement en appliquant les bases. Imaginez ce que vous pouvez faire.</p></div>';
-                cta = '<div class="cta-title">Sortez de la vulnérabilité maintenant</div><div class="cta-items"><div class="cta-item"><div class="cta-icon">1</div><div class="cta-text"><strong>Procurez-vous mon livre immédiatement</strong> — Il explique chaque tactique que les agents utilisent contre vous. Les clauses suspensives, la négociation du DPE, la vraie nature du dépôt de garantie. C’est fondamental.</div></div><div class="cta-item"><div class="cta-icon">2</div><div class="cta-text"><strong>Faites-vous accompagner avant votre achat</strong> — Je négocie À VOTRE PLACE. Vous ne payez que si j’économise plus de 5 000 €. Mes honoraires : 10% des économies par tranche de 5 000 €. Zéro risque pour vous. À votre niveau, je gagne en général 30 000 à 50 000 € pour vous.</div></div></div><div style="text-align:center">' + amazonBtn + '<br>' + phoneBtn + '</div>';
+                cta = '<h2>Sortez de la vulnérabilité maintenant</h2>';
             }
             else if (total <= 30) {
                 verdict = "Profil : Acheteur averti mais incomplet";
@@ -1739,7 +1739,7 @@
                 + '<p>Votre <strong>Lecture humaine (' + scores.lecture + '/' + totals.lecture + ', soit ' + psyPct + '%)</strong> se développe, mais elle reste partiellement aveugle. Vous détectez les mensonges évidents, mais l’effet de possession qui pousse le vendeur à surestimer son bien ? Les signaux subtils quand il évoque ses contraintes personnelles sans le dire ouvertement ? Le biais de confirmation, l’ancrage psychologique — ces techniques passent encore sous votre radar.</p>'
                 + '<p>En <strong>Risque & Technique (' + scores.risque + '/' + totals.risque + ', soit ' + risPct + '%)</strong>, vous repérez l’humidité qui saigne sur les murs, mais pas le problème structural subtil. Vous voyez que le DPE est mauvais, mais vous ne savez pas que c’est un levier de négociation majeur. Et face à un vendeur qui baisse en dessous de son prix d’achat, vous hésitez entre pitié et opportunité — cette hésitation vous coûte cher.</p>'
                 + '<p><strong>Mon diagnostic :</strong> Vous êtes exactement au niveau où l’accompagnement change tout. Vous avez du potentiel, il vous manque juste les clés finales. Avec le bon coaching, votre prochain achat devient une démonstration de force négociatrice.</p></div>';
-                cta = '<div class="cta-title">Franchissez le cap maintenant</div><div class="cta-items"><div class="cta-item"><div class="cta-icon">1</div><div class="cta-text"><strong>Complétez votre formation</strong> — Mon livre détaille les techniques avancées que vous manquez : les offres fantômes, la vraie structure du marché DVF, la lecture fine de la psychologie des agents. Il est écrit exactement pour votre profil.</div></div><div class="cta-item"><div class="cta-icon">2</div><div class="cta-text"><strong>Accompagnement sur mesure</strong> — Je négocie AVEC VOUS avant votre achat. Vous ne payez que si j’économise plus de 5 000 €. À votre niveau + mon expertise = résultats spectaculaires. En général, mes clients à votre profil économisent 40 000 à 60 000 €.</div></div></div><div style="text-align:center">' + amazonBtn + '<br>' + phoneBtn + '</div>';
+                cta = '<h2>Franchissez le cap maintenant</h2>';
             }
             else if (total <= 38) {
                 verdict = "Profil : Négociateur confirmé";
@@ -1751,7 +1751,7 @@
                 + '<p>Votre <strong>Lecture humaine (' + scores.lecture + '/' + totals.lecture + ', soit ' + psyPct + '%)</strong> est impressionnante. Vous connaissez l’effet de possession qui pousse un vendeur à surestimer. Vous repérez les signaux — quand il évoque ses contraintes personnelles, vous savez qu’il est prêt à céder. Mais savez-vous EXPLOITER ces informations dans une stratégie de négociation globale ? C’est là que réside l’expertise véritable.</p>'
                 + '<p>En <strong>Risque & Technique (' + scores.risque + '/' + totals.risque + ', soit ' + risPct + '%)</strong>, vous savez inspecter un bien et identifier les risques majeurs. Face à un vendeur qui baisse en dessous de son prix d’achat, vous savez que ce n’est ni de la pitié ni de l’abus — c’est une question d’éthique et de stratégie. Mais les petits défauts « normaux » sont souvent des signaux de vrais problèmes coûteux.</p>'
                 + '<p><strong>Mon diagnostic :</strong> Vous avez les fondamentaux d’un vrai négociateur. Vous pourriez continuer seul, ou vous pouvez devenir quelqu’un que les agents redoutent réellement. Votre profil correspond EXACTEMENT à celui des négociateurs professionnels que je forme.</p></div>';
-                cta = '<div class="cta-title">Devenez imbattable</div><div class="cta-items"><div class="cta-item"><div class="cta-icon">1</div><div class="cta-text"><strong>Perfectionnez les techniques avancées</strong> — Mon livre contient les stratégies que très peu d’acheteurs maîtrisent : le maniement psychologique des offres multiples, la structuration fine d’une négociation, les pièges cachés du marché.</div></div><div class="cta-item"><div class="cta-icon">2</div><div class="cta-text"><strong>Envisagez la professionnalisation</strong> — Avec votre niveau de compétence, vous avez le profil pour devenir négociateur immobilier professionnel. C’est une carrière, pas un passe-temps. Parlons-en.</div></div></div><div style="text-align:center">' + amazonBtn + '<br>' + phoneBtn + '</div>';
+                cta = '<h2>Devenez imbattable</h2>';
             }
             else {
                 verdict = "Profil : Expert en négociation";
@@ -1763,12 +1763,12 @@
                 + '<p>En <strong>Lecture humaine (' + scores.lecture + '/' + totals.lecture + ', soit ' + psyPct + '%)</strong>, vous lisez les agents et les vendeurs comme un livre ouvert. Vous connaissez l’effet de possession, le biais d’ancrage. Quand un vendeur évoque ses contraintes personnelles, vous savez que c’est le signal de céder. Vous détectez les mensonges, les offres fantômes, les fausses urgences. Cette lucidité est rare et précieuse.</p>'
                 + '<p>En <strong>Risque & Technique (' + scores.risque + '/' + totals.risque + ', soit ' + risPct + '%)</strong>, rien ne vous échappe. Face à un vendeur qui baisse en dessous de son prix d’achat, vous savez que ce n’est ni de la pitié ni de l’abus de faiblesse — c’est une autre chose à acheter. Vous utilisez chaque défaut comme levier de négociation. Un DPE manipulé ? Vous voyez ces choses avant que quelqu’un d’autre ne les remarque.</p>'
                 + '<p><strong>Mon diagnostic :</strong> Vous n’avez pas besoin qu’on vous apprenne. Ce que je vois, c’est quelqu’un qui pourrait ENSEIGNER ces compétences. Je forme des négociateurs immobiliers professionnels, et votre profil correspond exactement à ce que je cherche. Si l’immobilier vous passionne autant que vos résultats le suggèrent, nous devrions vraiment parler.</p></div>';
-                cta = '<div class="cta-title">Rejoignez le cercle des experts</div><div class="cta-items"><div class="cta-item"><div class="cta-icon">1</div><div class="cta-text"><strong>Mon livre, pour la plénitude</strong> — Même à votre niveau, il contient des cas réels, des anecdotes de négociation avancée, des pièges que peu de gens ont rencontrés. C’est une ressource de référence.</div></div><div class="cta-item"><div class="cta-icon">2</div><div class="cta-text"><strong>Devenez négociateur professionnel</strong> — Vos compétences valent bien plus qu’une simple utilisation personnelle. Devenez expert-négociateur et transformez votre maîtrise en revenus. Je cherche des gens exactement comme vous.</div></div></div><div style="text-align:center">' + amazonBtn + '<br>' + phoneBtn + '</div>';
+                cta = '<h2>Rejoignez le cercle des experts</h2>';
             }
 
             document.getElementById('verdictText').textContent = verdict;
             document.getElementById('verdictDescription').innerHTML = analysis;
-            document.getElementById('ctaSection').innerHTML = cta;
+            document.getElementById('ctaTitleSection').innerHTML = cta;
 
             submitResults(total, scores.nego, scores.juridique, scores.lecture);
         }
