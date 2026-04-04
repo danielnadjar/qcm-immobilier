@@ -1873,6 +1873,24 @@
             window.open("https://twitter.com/intent/tweet?text=" + encodeURIComponent(text) + "&url=" + encodeURIComponent(window.location.href), '_blank');
         }
         function copyLink() { navigator.clipboard.writeText(window.location.href).then(() => alert('Lien copié !')); }
+
+        // === PREVIEW MODE (admin only) ===
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('preview') === 'results') {
+                userName = 'Coach Daniel';
+                userEmail = 'test@preview.com';
+                // Simulate random answers for all questions
+                userAnswers = quizData.map(q => {
+                    if (q.type === 'open') return 'Réponse test preview';
+                    return q.correctAnswer; // all correct for max score preview
+                });
+                // Show results page directly
+                document.getElementById('landing').style.display = 'none';
+                document.getElementById('quizContainer').style.display = 'none';
+                showResults();
+            }
+        })();
     </script>
     <a href="admin.html" class="admin-float" title="Admin">
         <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
